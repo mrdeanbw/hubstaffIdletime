@@ -27,6 +27,7 @@
   "author": "Prashant Abhishek <prashant.abhishek7g@gmail.com>, Mayank Chandola <imayankchd@gmail.com>, Sandeep Panda <sandeep@hashnode.com>, Syed Fazle Rahman <fazle@hashnode.com>, Alkshendra Maurya <alkshendra@hashnode.com>",
   "license": "MIT",
   "dependencies": {
+    "async": "^2.1.5",
     "babel-core": "^6.9.1",
     "bcrypt": "^1.0.2",
     "body-parser": "^1.15.1",

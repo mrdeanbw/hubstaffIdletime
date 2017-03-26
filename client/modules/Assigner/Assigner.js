@@ -73,13 +73,18 @@ class Assigner extends Component {
 
   componentWillReceiveProps(nextProps) {
     // Fetch positions if we have a current submission
-    if (!this.pollingStarted && nextProps.currentSubmission && nextProps.currentSubmission.id) {
+    if (!this.pollingStarted && nextProps.currentSubmission && nextProps.currentSubmission.length > 0) {
       this.pollingStarted = true;
-      this.startPollingPositions(nextProps.currentSubmission.id);
+      nextProps.currentSubmission.map(value => {
+        this.startPollingPositions(value.id);
+      }, this);
+      
       // Set timer for refresh
-      let endsAt = new Date(nextProps.currentSubmission.closed_at);
+      let endsAt = new Date(nextProps.currentSubmission[0].closed_at);
       let timeout = endsAt.getTime() - Date.now() - 300000; // minus 5 minutes
-      this.startRefreshSubmission(nextProps.currentSubmission, timeout);
+      nextProps.currentSubmission.map(value => {
+        this.startRefreshSubmission(value, timeout);
+      }, this);
     }
   }
 
@@ -93,9 +98,11 @@ class Assigner extends Component {
     })));
   }
 
-  handleCancelSubmission = (submissionId) => {
+  handleCancelSubmission = (submission) => {
     this.pollingStarted = false;
-    this.props.dispatch(cancelSubmission(submissionId));
+    submission.map(value => {
+      this.props.dispatch(cancelSubmission(value.id));
+    }, this);
   }
 
   handleProjectAssigned = (projectId) => {
@@ -145,10 +152,10 @@ class Assigner extends Component {
           <CardActions>
             <RaisedButton primary={true} label="Start"
                 onClick={() => this.handlePostSubmissions(this.props.selectedProjects)}
-                disabled={this.props.selectedProjects.length == 0 || this.props.currentSubmission.id}  style={this.styles.startButton} />
+                disabled={this.props.selectedProjects.length == 0 || this.props.currentSubmission.length > 0}  style={this.styles.startButton} />
             <RaisedButton primary={true} label="Cancel"
-                onClick={() => this.handleCancelSubmission(this.props.currentSubmission.id)}
-                disabled={!this.props.currentSubmission.id}  style={this.styles.startButton} />
+                onClick={() => this.handleCancelSubmission(this.props.currentSubmission)}
+                disabled={!this.props.currentSubmission.length > 0}  style={this.styles.startButton} />
           </CardActions>
         </Card>
         <Toolbar>
@@ -157,11 +164,11 @@ class Assigner extends Component {
           </ToolbarGroup>
           <ToolbarSeparator />
           <ToolbarGroup>
-            <ToolbarTitle text={"Next Refresh: " + (this.props.currentSubmission.closed_at ? this.props.currentSubmission.closed_at : "No Submission Yet!")} />
+            <ToolbarTitle text={"Next Refresh: " + (this.props.currentSubmission.length > 0 ? this.props.currentSubmission[0].closed_at : "No Submission Yet!")} />
           </ToolbarGroup>
           <ToolbarSeparator />
           <ToolbarGroup>
-            <ToolbarTitle text={"Submission Status: " + (this.props.currentSubmission.status ? this.props.currentSubmission.status : "No Submission Yet!")} />
+            <ToolbarTitle text={"Submission Status: " + (this.props.currentSubmission.length > 0 ? this.props.currentSubmission[0].status : "No Submission Yet!")} />
           </ToolbarGroup>
         </Toolbar>
         <QueueList queues={this.props.positions} handleProjectAssigned={this.handleProjectAssigned} />
@@ -199,7 +206,7 @@ Assigner.propTypes = {
   projects: PropTypes.array,
   dispatch: PropTypes.func.isRequired,
   positions: PropTypes.array.isRequired,
-  currentSubmission: PropTypes.object.isRequired,
+  currentSubmission: PropTypes.array.isRequired,
   error: PropTypes.string,
   handleProjectAssigned: PropTypes.func.isRequired,
 };

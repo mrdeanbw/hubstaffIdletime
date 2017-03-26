@@ -5,6 +5,7 @@ export const ADD_PROJECTS = 'ADD_PROJECTS';
 export const TOGGLE_PROJECT = 'TOGGLE_PROJECT';
 export const UPDATE_SUBMISSION = 'UPDATE_SUBMISSION';
 export const UPDATE_POSITIONS = 'UPDATE_POSITIONS';
+export const CLEAR_POSITIONS = 'CLEAR_POSITIONS';
 export const SET_ERROR = 'SET_ERROR';
 
 // Export Actions
@@ -61,8 +62,8 @@ export function cancelSubmission(submissionId) {
   return (dispatch) => {
     return callApi('projects/cancel/' + submissionId, 'get').then(res => {
       if (res.success) {
-        dispatch(updateSubmission({}));
-        dispatch(updatePositions([]));
+        dispatch(updateSubmission([]));
+        dispatch(clearPositions());
       }
       else {
         dispatch(setError(res.message));
@@ -91,17 +92,24 @@ export function fetchSubmission() {
   };
 }
 
-export function updatePositions(positions) {
+export function updatePositions(submissionId, positions) {
   return {
     type: UPDATE_POSITIONS,
+    submissionId,
     positions,
+  };
+}
+
+export function clearPositions() {
+  return {
+    type: CLEAR_POSITIONS,
   };
 }
 
 export function fetchPositions(submissionId) {
   return (dispatch) => {
     return callApi('projects/positions/' + submissionId, 'get').then(res => {
-      dispatch(updatePositions(res.positions));
+      dispatch(updatePositions(res.submissionId, res.positions));
     });
   };
 }
@@ -110,7 +118,8 @@ export function refreshSubmission(submissionId) {
   return (dispatch) => {
     return callApi('projects/refresh/' + submissionId, 'get').then(res => {
       if(res.success) {
-        dispatch(updateSubmission(res.submission));
+        //dispatch(updateSubmission(res.submission));
+        dispatch(fetchSubmission());
       }
     });
   };

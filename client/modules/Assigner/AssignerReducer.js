@@ -1,8 +1,10 @@
 // Import Actions
-import { ADD_PROJECTS, TOGGLE_PROJECT, UPDATE_SUBMISSION, UPDATE_POSITIONS, SET_ERROR } from './AssignerActions';
+import { ADD_PROJECTS, TOGGLE_PROJECT, UPDATE_SUBMISSION, UPDATE_POSITIONS, SET_ERROR, CLEAR_POSITIONS } from './AssignerActions';
+import findIndex from 'lodash/findIndex';
+import find from 'lodash/find';
 
 // Initial State
-const initialState = { data: [], submission: {}, positions:[], error: "" };
+const initialState = { data: [], submission: [], positions:[], error: "" };
 
 const AssignerReducer = (state = initialState, action) => {
   switch (action.type) {
@@ -42,7 +44,34 @@ const AssignerReducer = (state = initialState, action) => {
     case UPDATE_POSITIONS :
       return {
         ...state,
-        positions: action.positions
+        positions: action.positions.reduce(function (allPositions, position) { 
+            let foundPositionIndex = findIndex(allPositions, e => { return e.project_id == position.project_id; });
+            if (foundPositionIndex != -1) {
+              console.log('Found position' + action.submissionId);
+              let index = findIndex(allPositions[foundPositionIndex].position, ['id', action.submissionId]);
+              console.log('index found : ' + index)
+              if (index == -1) {
+                allPositions[foundPositionIndex].position.push({id: action.submissionId, position: position.position});
+              }
+              else {
+                allPositions[foundPositionIndex].position[index] = {id: action.submissionId, position: position.position};
+              }
+            }
+            else {
+              console.log('Not Found' + action.submissionId);
+              allPositions = [...allPositions, {
+                project_id: position.project_id,
+                language: position.language,
+                position: [{ id: action.submissionId, position: position.position}]
+              }]
+            }
+            return allPositions;
+          }, [...state.positions])
+      }
+    case CLEAR_POSITIONS :
+      return {
+        ...state,
+        positions: []
       }
     default:
       return state;

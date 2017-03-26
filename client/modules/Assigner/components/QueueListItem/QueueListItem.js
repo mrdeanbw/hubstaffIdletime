@@ -11,6 +11,8 @@ import {
 import Badge from 'material-ui/Badge';
 import Divider from 'material-ui/Divider';
 import SeparatorIcon from 'material-ui/svg-icons/content/remove';
+import maxBy from 'lodash/maxBy';
+import findIndex from 'lodash/findIndex';
 
 // Import Style
 import styles from './QueueListItem.css';
@@ -20,17 +22,19 @@ class  QueueListItem extends React.Component {
   constructor(props) {
     super(props);
 
-    this.initialPosition = this.props.queue.position;
+    this.initialPosition = maxBy(this.props.queue.position, 'position').position;
   }
 
   componentWillReceiveProps(nextProps) {
     // Notify user of a new project
-    if (nextProps.queue.position === 1) {
+    if (nextProps.queue.position.indexOf(1) != -1) {
       this.handleProjectAssigned(this.props.queue.project_id);
     }
   }
   
   render() {
+    this.initialPosition = maxBy(this.props.queue.position, 'position').position;
+    
     const styles = {
         stepper: {
             width: this.initialPosition * 30,
@@ -39,7 +43,7 @@ class  QueueListItem extends React.Component {
     let steps = [];
 
     for(var i = 1; i <= this.initialPosition; i++ ) {
-        steps.push(<Step completed={false} active={this.props.queue.position === i}>
+        steps.push(<Step completed={false} active={findIndex(this.props.queue.position, ['position', i]) != -1}>
             <StepLabel></StepLabel>
         </Step>);
     }
@@ -60,8 +64,8 @@ class  QueueListItem extends React.Component {
 
 QueueListItem.propTypes = {
   queue: PropTypes.shape({
-    email: PropTypes.string.isRequired,
-    cuid: PropTypes.string.isRequired,
+    project_id: PropTypes.string.isRequired,
+    position: PropTypes.array.isRequired,
   }).isRequired,
   handleProjectAssigned: PropTypes.func.isRequired,
 };

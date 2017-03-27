@@ -14,7 +14,7 @@ export function getAccounts(req, res) {
     if (err) {
       res.status(500).send(err);
     }
-    console.log(accounts);
+    //console.log(accounts);
     res.json({ accounts });
   });
 }

@@ -47,9 +47,9 @@ const AssignerReducer = (state = initialState, action) => {
         positions: action.positions.reduce(function (allPositions, position) { 
             let foundPositionIndex = findIndex(allPositions, e => { return e.project_id == position.project_id; });
             if (foundPositionIndex != -1) {
-              console.log('Found position' + action.submissionId);
+              //console.log('Found position' + action.submissionId);
               let index = findIndex(allPositions[foundPositionIndex].position, ['id', action.submissionId]);
-              console.log('index found : ' + index)
+              //console.log('index found : ' + index)
               if (index == -1) {
                 allPositions[foundPositionIndex].position.push({id: action.submissionId, position: position.position});
               }
@@ -58,7 +58,7 @@ const AssignerReducer = (state = initialState, action) => {
               }
             }
             else {
-              console.log('Not Found' + action.submissionId);
+              //console.log('Not Found' + action.submissionId);
               allPositions = [...allPositions, {
                 project_id: position.project_id,
                 language: position.language,

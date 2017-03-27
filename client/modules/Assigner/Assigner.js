@@ -56,8 +56,8 @@ class Assigner extends Component {
     if (!this.pollingStarted) {
       return;
     }
-    console.log("Starting to poll!");
-    console.log(submissionId);
+    //console.log("Starting to poll!");
+    //console.log(submissionId);
     this.props.dispatch(fetchPositions(submissionId));
     setTimeout(() => this.startPollingPositions(submissionId), 120000);
   }
@@ -66,7 +66,7 @@ class Assigner extends Component {
     if (!this.pollingStarted) {
       return;
     }
-    console.log("Starting Refresh!");
+    //console.log("Starting Refresh!");
     this.props.dispatch(refreshSubmission(submission.id));
     setTimeout(() => this.startRefreshSubmission(submission, timeout), timeout);
   }

@@ -19,7 +19,7 @@ export default function () {
     });
 
     const account1 = new Account({email: 'ralphwantek@gmail.com', password: '03xqlsRP61mcNqm', cuid: cuid()});
-    const account3 = new Account({email: 'ziahamza2007@gmail.com', password: 'Test123', cuid: cuid()});
+    const account3 = new Account({email: 'ziahamza.ust@gmail.com', password: 'Test123', cuid: cuid()});
     const account5 = new Account({email: 'kennethau82@gmail.com', password: 'UdacityForever', cuid: cuid()});
     const account7 = new Account({email: 'madeius@icloud.com', password: '123456789', cuid: cuid()});
     const account8 = new Account({email: 'xmetalced@gmail.com', password: 'krankbuzz2016', cuid: cuid()});

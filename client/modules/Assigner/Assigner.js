@@ -13,10 +13,10 @@ import {Toolbar, ToolbarGroup, ToolbarSeparator, ToolbarTitle} from 'material-ui
 import styles from './Assigner.css';
 
 // Import Actions
-import { fetchProjects, toggleProject, postSubmissions, fetchSubmission, fetchPositions, setError, cancelSubmission, notifyAssignedProject, refreshSubmission } from './AssignerActions';
+import { fetchProjects, toggleProject, selectProject, postSubmissions, fetchSubmission, fetchPositions, fetchAssignmentCount, setError, cancelSubmission, notifyAssignedProject, refreshSubmission, updateSubmission, clearPositions } from './AssignerActions';
 
 // Import Selectors
-import { getProjects, getPositions, getSelectedProjects, getSubmission, getError } from './AssignerReducer';
+import { getProjects, getPositions, getSelectedProjects, getSubmission, getError, getAssignCount } from './AssignerReducer';
 
 class Assigner extends Component {
   
@@ -49,7 +49,17 @@ class Assigner extends Component {
   
   componentDidMount() {
     this.props.dispatch(fetchProjects());
+    this.props.dispatch(fetchAssignmentCount());
     this.props.dispatch(fetchSubmission());
+  }
+
+  startCheckingAssignmentCount = () => {
+    if (!this.pollingStarted && this.props.assignCount < 2) {
+      return;
+    }
+    console.log('Fetching assign count');
+    this.props.dispatch(fetchAssignmentCount());
+    setTimeout(() => this.startCheckingAssignmentCount(), 120000);
   }
 
   startPollingPositions = (submissionId) => {
@@ -66,30 +76,68 @@ class Assigner extends Component {
     if (!this.pollingStarted) {
       return;
     }
-    //console.log("Starting Refresh!");
-    this.props.dispatch(refreshSubmission(submission.id));
-    setTimeout(() => this.startRefreshSubmission(submission, timeout), timeout);
+    console.log("Starting Refresh!");
+    if (submission.status != 'fulfilled') {
+      this.props.dispatch(refreshSubmission(submission.id));
+      setTimeout(() => this.startRefreshSubmission(submission, timeout), timeout);
+    }
   }
 
   componentWillReceiveProps(nextProps) {
+    // Check the asignment count
+    if (this.props.assignCount != nextProps.assignCount && nextProps.assignCount >=2) {
+        // Account is full, need to wait, so start a assignment count check thread every 2 minutes
+        this.props.dispatch(setError("Account is full now! Waiting for submissions to be less than 2."));
+        // Do not continue to poll
+        this.pollingStarted = false;
+        return;
+    }
+    
     // Fetch positions if we have a current submission
     if (!this.pollingStarted && nextProps.currentSubmission && nextProps.currentSubmission.length > 0) {
       this.pollingStarted = true;
-      nextProps.currentSubmission.map(value => {
-        this.startPollingPositions(value.id);
+      
+      // Select the projects whose submissions are already in progress.
+      nextProps.currentSubmission[0].submission_request_projects.map(value => {
+        this.props.dispatch(selectProject(value.project_id));
       }, this);
       
-      // Set timer for refresh
+      // Start checking for assignment count
+      this.startCheckingAssignmentCount();
+      
       let endsAt = new Date(nextProps.currentSubmission[0].closed_at);
       let timeout = endsAt.getTime() - Date.now() - 300000; // minus 5 minutes
+
+      if (nextProps.currentSubmission[0].status == 'fulfilled' || timeout < 0) {
+        // Resubmit a new request
+        this.props.dispatch(updateSubmission([]));
+        this.props.dispatch(clearPositions());
+        this.handlePostSubmissions(this.props.selectedProjects);
+        return;
+      }
+      
+      // Set timer for refresh
       nextProps.currentSubmission.map(value => {
         this.startRefreshSubmission(value, timeout);
       }, this);
+
+      // Start position polling
+      nextProps.currentSubmission.map(value => {
+        this.startPollingPositions(value.id);
+      }, this);
+    }
+    else if (!this.pollingStarted && this.props.selectedProjects && this.props.selectedProjects.length > 0) {
+      // Resubmit a new request
+      console.log('Resubmit!!');
+      this.handlePostSubmissions(this.props.selectedProjects);
     }
   }
 
   handleToggleProject = (projectId) => {
-    this.props.dispatch(toggleProject(projectId))
+    // Disable project selection/deselction if we have a current submission already
+    // TOOD: if (!this.props.currentSubmission || this.props.currentSubmission.length == 0) {
+      this.props.dispatch(toggleProject(projectId));
+    //}
   }
 
   handlePostSubmissions = (selectedProjects) => {
@@ -194,6 +242,7 @@ const mapStateToProps = (state) => {
     positions: getPositions(state),
     selectedProjects: getSelectedProjects(state),
     currentSubmission: getSubmission(state),
+    assignCount: getAssignCount(state),
     error: getError(state)
   };
 };
@@ -207,6 +256,7 @@ Assigner.propTypes = {
   dispatch: PropTypes.func.isRequired,
   positions: PropTypes.array.isRequired,
   currentSubmission: PropTypes.array.isRequired,
+  assignCount: PropTypes.number.isRequired,
   error: PropTypes.string,
   handleProjectAssigned: PropTypes.func.isRequired,
 };

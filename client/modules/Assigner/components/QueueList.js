@@ -11,6 +11,7 @@ function QueueList(props) {
         props.queues.map(queue => (
           <QueueListItem
             queue={queue}
+            key={queue.project_id}
             handleProjectAssigned={this.handleProjectAssigned}
           />
         ))

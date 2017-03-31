@@ -13,8 +13,10 @@ import roles from './modules/Role/RoleReducer';
 import accounts from './modules/Account/AccountReducer';
 import assigners from './modules/Assigner/AssignerReducer';
 
-// Combine all reducers into one root reducer
-export default combineReducers({
+// Export Constants
+export const CLEAR_STATE = 'CLEAR_STATE';
+
+const rootReducer = combineReducers({
   app,
   posts,
   users,
@@ -24,3 +26,12 @@ export default combineReducers({
   accounts,
   assigners
 });
+
+// Combine all reducers into one root reducer
+export default (state, action) => {
+  if (action.type === 'CLEAR_STATE') {
+    state = undefined;
+  }
+
+  return rootReducer(state, action);
+};

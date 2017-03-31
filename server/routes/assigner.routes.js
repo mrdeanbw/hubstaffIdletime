@@ -24,4 +24,7 @@ router.route('/projects/notify/:projectId').get(AssignerController.notify);
 // Refresh submission 
 router.route('/projects/refresh/:submissionId').get(AssignerController.refresh);
 
+// Get assignment Accounts
+router.route('/projects/assigncount').get(AssignerController.getAssignCount);
+
 export default router;

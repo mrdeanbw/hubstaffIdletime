@@ -1,6 +1,6 @@
 import Assigner from '../models/assigner';
 import request from '../util/request';
-import { projectsUrl, submitUrl, listSubmissionsUrl } from '../util/udacityHelpers';
+import { projectsUrl, submitUrl, listSubmissionsUrl, assignCountUrl } from '../util/udacityHelpers';
 import { getAuthToken } from '../util/request';
 import {sendMail} from '../util/mailer';
 const async = require("async");
@@ -36,7 +36,7 @@ export function postProjects(req, res) {
   // Get the udacity account token
   req.user.populate('accounts', (err, user) => {
     user.accounts.forEach(function(account) {
-      console.log(account);
+      //console.log(account);
       var credentials = {
         email: account.email,
         password: account.password
@@ -66,8 +66,8 @@ export function postProjects(req, res) {
           let error = null;
           let returnResults = [];
           results.map(value => {
-            if (value.error) {
-              error = value.error;
+            if (value.error || value.FetchError) {
+              error = value.error || value.FetchError;
             }
             else {
               returnResults.push(value);
@@ -116,20 +116,20 @@ export function getSubmission(req, res) {
   // Get the udacity account token
   req.user.populate('accounts', (err, user) => {
     user.accounts.forEach(function(account) {
-      //console.log(account);
+      console.log(account);
       var credentials = {
         email: account.email,
         password: account.password
       }
       getAuthToken(credentials).then(token => {
-        //console.log(token);
+        console.log(token);
         request(listSubmissionsUrl, {'Authorization' : token}).then(response => {
           // TODO: handle multiple accounts, currently return projects of first account only.
           console.log("Submissions");
           console.log(response);
           res.status(200).json({
             success: true,
-            submission: response || []
+            submission: response.error || response.FetchError ? [] : response
           });
         });
       })
@@ -150,7 +150,7 @@ export function cancel(req, res) {
       getAuthToken(credentials).then(token => {
         console.log('Cancelling project...');
         request(submitUrl + "/" + req.params.submissionId + ".json", {'Authorization' : token}, 'delete').then(response => {
-          console.log(response);
+          //console.log(response);
           res.status(200).json({
             success: true,
           });
@@ -188,13 +188,39 @@ export function refresh(req, res) {
         password: account.password
       }
       getAuthToken(credentials).then(token => {
-        console.log('Refreshing project...');
+        //console.log('Refreshing project...');
         request(submitUrl + "/" + req.params.submissionId + "/refresh.json", {'Authorization' : token}, 'put').then(response => {
-          console.log(response);
+          //console.log(response);
           res.status(200).json({
             success: response.error ? false : true,
             submission: response.error ? {} : response,
             message: response.error || ""
+          });
+        });
+      })
+    }, this);
+  })
+  
+}
+
+export function getAssignCount(req, res) {
+  // Get the udacity account token
+  req.user.populate('accounts', (err, user) => {
+    user.accounts.forEach(function(account) {
+      //console.log(account);
+      var credentials = {
+        email: account.email,
+        password: account.password
+      }
+      getAuthToken(credentials).then(token => {
+        //console.log(token);
+        console.log("Assign count----");
+        request(assignCountUrl, {'Authorization' : token}).then(response => {
+          // TODO: handle multiple accounts, currently return projects of first account only.
+          console.log(response);
+          res.status(200).json({
+            success: true,
+            assignCount: response.assigned_count || 0
           });
         });
       })

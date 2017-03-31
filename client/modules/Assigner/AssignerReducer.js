@@ -1,10 +1,10 @@
 // Import Actions
-import { ADD_PROJECTS, TOGGLE_PROJECT, UPDATE_SUBMISSION, UPDATE_POSITIONS, SET_ERROR, CLEAR_POSITIONS } from './AssignerActions';
+import { ADD_PROJECTS, TOGGLE_PROJECT, SELECT_PROJECT, UPDATE_SUBMISSION, UPDATE_POSITIONS, SET_ERROR, CLEAR_POSITIONS, UPDATE_ASSIGNCOUNT } from './AssignerActions';
 import findIndex from 'lodash/findIndex';
 import find from 'lodash/find';
 
 // Initial State
-const initialState = { data: [], submission: [], positions:[], error: "" };
+const initialState = { data: [], submission: [], positions:[], error: "", assignCount: 0 };
 
 const AssignerReducer = (state = initialState, action) => {
   switch (action.type) {
@@ -30,17 +30,29 @@ const AssignerReducer = (state = initialState, action) => {
           }
           return project;
         })
-      }
+      };
+    case SELECT_PROJECT :
+      return {
+        ...state,
+        data: state.data.map(project => {
+          if (project.project_id == action.projectId) {
+            return Object.assign({}, project, {
+              selected: true
+            })
+          }
+          return project;
+        })
+      };
     case UPDATE_SUBMISSION :
       return {
         ...state,
         submission: action.submission,
-      }
+      };
     case SET_ERROR :
       return {
         ...state,
         error: action.message,
-      }
+      };
     case UPDATE_POSITIONS :
       return {
         ...state,
@@ -67,12 +79,17 @@ const AssignerReducer = (state = initialState, action) => {
             }
             return allPositions;
           }, [...state.positions])
-      }
+      };
     case CLEAR_POSITIONS :
       return {
         ...state,
         positions: []
-      }
+      };
+    case UPDATE_ASSIGNCOUNT :
+     return {
+       ...state,
+       assignCount: action.assignCount
+     };
     default:
       return state;
   }
@@ -86,5 +103,6 @@ export const getPositions = state => state.assigners.positions;
 export const getSelectedProjects = state => state.assigners.data.filter(project => project.selected == true);
 export const getSubmission = state => state.assigners.submission;
 export const getError = state => state.assigners.error;
+export const getAssignCount = state => state.assigners.assignCount;
 
 export default AssignerReducer;

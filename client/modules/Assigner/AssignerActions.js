@@ -3,10 +3,12 @@ import callApi from '../../util/apiCaller';
 // Export Constants
 export const ADD_PROJECTS = 'ADD_PROJECTS';
 export const TOGGLE_PROJECT = 'TOGGLE_PROJECT';
+export const SELECT_PROJECT = 'SELECT_PROJECT';
 export const UPDATE_SUBMISSION = 'UPDATE_SUBMISSION';
 export const UPDATE_POSITIONS = 'UPDATE_POSITIONS';
 export const CLEAR_POSITIONS = 'CLEAR_POSITIONS';
 export const SET_ERROR = 'SET_ERROR';
+export const UPDATE_ASSIGNCOUNT = 'UPDATE_ASSIGNCOUNT';
 
 // Export Actions
 export function addProjects(projects) {
@@ -31,10 +33,24 @@ export function toggleProject(projectId) {
   };
 }
 
+export function selectProject(projectId) {
+  return {
+    type: SELECT_PROJECT,
+    projectId,
+  };
+}
+
 export function updateSubmission(submission) {
   return {
     type: UPDATE_SUBMISSION,
     submission,
+  };
+}
+
+export function updateAssignCount(assignCount) {
+  return {
+    type: UPDATE_ASSIGNCOUNT,
+    assignCount,
   };
 }
 
@@ -62,7 +78,7 @@ export function cancelSubmission(submissionId) {
   return (dispatch) => {
     return callApi('projects/cancel/' + submissionId, 'get').then(res => {
       if (res.success) {
-        dispatch(updateSubmission([]));
+        dispatch(fetchSubmission());
         dispatch(clearPositions());
       }
       else {
@@ -110,6 +126,14 @@ export function fetchPositions(submissionId) {
   return (dispatch) => {
     return callApi('projects/positions/' + submissionId, 'get').then(res => {
       dispatch(updatePositions(res.submissionId, res.positions));
+    });
+  };
+}
+
+export function fetchAssignmentCount() {
+  return (dispatch) => {
+    return callApi('projects/assigncount', 'get').then(res => {
+      dispatch(updateAssignCount(res.assignCount));
     });
   };
 }

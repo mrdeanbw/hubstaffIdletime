@@ -2,6 +2,7 @@ import {setAuthorizationToken} from '../../util/apiCaller';
 import callApi from '../../util/apiCaller';
 import jwtDecode from 'jwt-decode';
 import { browserHistory } from 'react-router';
+import {CLEAR_STATE} from '../../reducers';
 
 
 // Export Constants
@@ -16,11 +17,18 @@ export function setCurrentUser(user) {
   };
 }
 
+function clearState() {
+  return {
+    type: CLEAR_STATE
+  }
+}
+
 export function logout() {
   return dispatch => {
     localStorage.removeItem('jwtToken');
     setAuthorizationToken(false);
     dispatch(setCurrentUser({}));
+    dispatch(clearState());
   }
 }
 

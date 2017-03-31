@@ -85,9 +85,11 @@ class Assigner extends Component {
 
   componentWillReceiveProps(nextProps) {
     // Check the asignment count
-    if (this.props.assignCount != nextProps.assignCount && nextProps.assignCount >=2) {
+    if (nextProps.assignCount >=2) {
         // Account is full, need to wait, so start a assignment count check thread every 2 minutes
-        this.props.dispatch(setError("Account is full now! Waiting for submissions to be less than 2."));
+        if (this.props.assignCount != nextProps.assignCount) {
+          this.props.dispatch(setError("Account is full now! Waiting for submissions to be less than 2."));
+        }
         // Do not continue to poll
         this.pollingStarted = false;
         return;

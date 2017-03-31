@@ -66,8 +66,8 @@ class Assigner extends Component {
     if (!this.pollingStarted) {
       return;
     }
-    //console.log("Starting to poll!");
-    //console.log(submissionId);
+    console.log("Starting to poll!");
+    console.log(submissionId);
     this.props.dispatch(fetchPositions(submissionId));
     setTimeout(() => this.startPollingPositions(submissionId), 120000);
   }

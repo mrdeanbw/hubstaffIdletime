@@ -45,10 +45,12 @@ class Assigner extends Component {
       }
     };
     this.pollingStarted = false;
+    this.queuingStarted = false;
   }
   
   componentDidMount() {
     this.props.dispatch(fetchProjects());
+    this.props.dispatch(fetchAssignmentCount());
     this.props.dispatch(fetchSubmission());
   }
 
@@ -62,7 +64,7 @@ class Assigner extends Component {
   }
 
   startPollingPositions = (submissionId) => {
-    if (!this.pollingStarted || this.props.assignCount >= 2) {
+    if (!this.queuingStarted) {
       return;
     }
     console.log("Starting to poll!");
@@ -79,48 +81,21 @@ class Assigner extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    // Check the asignment count
-    if (nextProps.assignCount >=2) {
-        // Account is full, need to wait, so start a assignment count check thread every 2 minutes
-        if (this.props.assignCount != nextProps.assignCount) {
-          this.props.dispatch(setError("Account is full now! Waiting for submissions to be less than 2."));
-        }
-        return;
-    }
 
-    if (this.pollingStarted && this.props.assignCount >= 2 && this.props.assignCount != nextProps.assignCount) {
+    if (!this.pollingStarted) {
+      // noop
+      return;
+    }
+    
+    if (nextProps.assignCount < 2 && (!nextProps.currentSubmission || nextProps.currentSubmission.length == 0)) {
       
-      // The assign count has gone below 2, restart the current submission
-      if (nextProps.currentSubmission && nextProps.currentSubmission.length > 0) {
-          // Start position polling
-          nextProps.currentSubmission.map(value => {
-            this.startPollingPositions(value.id);
-          }, this);
-
-          // Check to see the refresh timeout has elapsed or not
-          let endsAt = new Date(nextProps.currentSubmission[0].closed_at);
-          let timeout = endsAt.getTime() - Date.now();
-
-          if (timeout < 0 && this.props.selectedProjects && this.props.selectedProjects.length > 0) {
-              // None of the submissions can be refreshed as all have expired, need to resubmit
-              console.log('Resubmit!!');
-              this.handlePostSubmissions(this.props.selectedProjects);
-          }
-          else {
-            // just refresh the current submissions
-            nextProps.currentSubmission.map(value => {
-                this.startRefreshSubmission(value);
-            }, this);
-          }
-      }
-      else if (this.props.selectedProjects && this.props.selectedProjects.length > 0) {
-        // might have fulfilled all submissions, resubmit
-        console.log('Resubmit!!');
-        this.handlePostSubmissions(this.props.selectedProjects);
-      }
+      // The assign count has gone below 2, and there are no submissions, start a new submisison.
+      this.props.dispatch(postSubmissions(this.props.selectedProjects.map(value => {
+        return {project_id: value.project_id, language: 'en-us'};
+      })));
     }
 
-    if (this.pollingStarted && nextProps.currentSubmission && nextProps.currentSubmission.length > 0) {
+    if (this.queuingStarted && nextProps.currentSubmission && nextProps.currentSubmission.length > 0) {
       // Check to see the refresh timeout has elapsed or not
       let endsAt = new Date(nextProps.currentSubmission[0].closed_at);
       let timeout = endsAt.getTime() - Date.now();
@@ -134,16 +109,13 @@ class Assigner extends Component {
     }
     
     // Fetch positions if we have a current submission
-    if (!this.pollingStarted && nextProps.currentSubmission && nextProps.currentSubmission.length > 0) {
-      this.pollingStarted = true;
+    if (!this.queuingStarted && nextProps.currentSubmission && nextProps.currentSubmission.length > 0) {
+      this.queuingStarted = true;
       
       // Select the projects whose submissions are already in progress.
       nextProps.currentSubmission[0].submission_request_projects.map(value => {
         this.props.dispatch(selectProject(value.project_id));
       }, this);
-      
-      // Start checking for assignment count
-      this.startCheckingAssignmentCount();
 
       // Start position polling
       nextProps.currentSubmission.map(value => {
@@ -153,20 +125,27 @@ class Assigner extends Component {
   }
 
   handleToggleProject = (projectId) => {
-    // Disable project selection/deselction if we have a current submission already
-    // TOOD: if (!this.props.currentSubmission || this.props.currentSubmission.length == 0) {
+    // Disable project selection/deselection if we have a current submission already
+    if (!this.props.currentSubmission || this.props.currentSubmission.length == 0) {
       this.props.dispatch(toggleProject(projectId));
-    //}
+    }
   }
 
   handlePostSubmissions = (selectedProjects) => {
-    this.props.dispatch(postSubmissions(selectedProjects.map(value => {
-      return {project_id: value.project_id, language: 'en-us'};
-    })));
+    this.pollingStarted = true;
+    // Start checking for assignment count
+    this.startCheckingAssignmentCount();
+    if (this.props.assignCount < 2) {
+      // Start a submission only when assign count < 2
+      this.props.dispatch(postSubmissions(selectedProjects.map(value => {
+        return {project_id: value.project_id, language: 'en-us'};
+      })));
+    }
   }
 
   handleCancelSubmission = (submission) => {
     this.pollingStarted = false;
+    this.queuingStarted = false;
     submission.map(value => {
       this.props.dispatch(cancelSubmission(value.id));
     }, this);
@@ -219,7 +198,7 @@ class Assigner extends Component {
           <CardActions>
             <RaisedButton primary={true} label="Start"
                 onClick={() => this.handlePostSubmissions(this.props.selectedProjects)}
-                disabled={this.props.selectedProjects.length == 0 || this.props.currentSubmission.length > 0}  style={this.styles.startButton} />
+                disabled={this.props.selectedProjects.length == 0 || this.props.currentSubmission.length > 0 || this.pollingStarted}  style={this.styles.startButton} />
             <RaisedButton primary={true} label="Cancel"
                 onClick={() => this.handleCancelSubmission(this.props.currentSubmission)}
                 disabled={!this.props.currentSubmission.length > 0}  style={this.styles.startButton} />
@@ -227,7 +206,7 @@ class Assigner extends Component {
         </Card>
         <Toolbar>
           <ToolbarGroup firstChild={true}>
-            <ToolbarTitle text={"Queuing Status: " + (this.props.assignCount >= 2 ? "Waiting..." : (this.pollingStarted ? "Started" : "Stopped"))} />
+            <ToolbarTitle text={"Queuing Status: " + (this.pollingStarted ? "Started" : "Stopped")} />
           </ToolbarGroup>
           <ToolbarSeparator />
           <ToolbarGroup>

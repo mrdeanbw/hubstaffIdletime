@@ -45,6 +45,7 @@ class Assigner extends Component {
       }
     };
     this.pollingStarted = false;
+    this.assignCountWait = false;
   }
   
   componentDidMount() {
@@ -63,7 +64,7 @@ class Assigner extends Component {
   }
 
   startPollingPositions = (submissionId) => {
-    if (!this.pollingStarted) {
+    if (!this.pollingStarted || this.assignCountWait) {
       return;
     }
     console.log("Starting to poll!");
@@ -73,7 +74,7 @@ class Assigner extends Component {
   }
 
   startRefreshSubmission = (submission, timeout) => {
-    if (!this.pollingStarted) {
+    if (!this.pollingStarted || assignCountWait) {
       return;
     }
     console.log("Starting Refresh!");
@@ -91,9 +92,11 @@ class Assigner extends Component {
           this.props.dispatch(setError("Account is full now! Waiting for submissions to be less than 2."));
         }
         // Do not continue to poll
-        this.pollingStarted = false;
+        this.assignCountWait = true;
         return;
     }
+
+    this.assignCountWait = false;
     
     // Fetch positions if we have a current submission
     if (!this.pollingStarted && nextProps.currentSubmission && nextProps.currentSubmission.length > 0) {
@@ -128,7 +131,7 @@ class Assigner extends Component {
         this.startPollingPositions(value.id);
       }, this);
     }
-    else if (!this.pollingStarted && this.props.selectedProjects && this.props.selectedProjects.length > 0) {
+    else if (this.pollingStarted && this.props.selectedProjects && this.props.selectedProjects.length > 0) {
       // Resubmit a new request
       console.log('Resubmit!!');
       this.handlePostSubmissions(this.props.selectedProjects);

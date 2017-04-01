@@ -64,7 +64,7 @@ class  QueueListItem extends React.Component {
 
 QueueListItem.propTypes = {
   queue: PropTypes.shape({
-    project_id: PropTypes.string.isRequired,
+    project_id: PropTypes.number.isRequired,
     position: PropTypes.array.isRequired,
   }).isRequired,
   handleProjectAssigned: PropTypes.func.isRequired,

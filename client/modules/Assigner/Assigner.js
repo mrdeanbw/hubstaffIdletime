@@ -204,7 +204,7 @@ class Assigner extends Component {
     ];
     return (
       <div>
-        <Card expanded="true">
+        <Card expanded={true}>
           <CardHeader
             title="Projects"
             subtitle="Select the projects to queue"

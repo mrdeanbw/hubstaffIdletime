@@ -12,7 +12,7 @@ function QueueList(props) {
           <QueueListItem
             queue={queue}
             key={queue.project_id}
-            handleProjectAssigned={this.handleProjectAssigned}
+            handleProjectAssigned={props.handleProjectAssigned}
           />
         ))
       }

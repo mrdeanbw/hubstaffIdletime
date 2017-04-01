@@ -43,7 +43,7 @@ class  QueueListItem extends React.Component {
     let steps = [];
 
     for(var i = 1; i <= this.initialPosition; i++ ) {
-        steps.push(<Step completed={false} active={findIndex(this.props.queue.position, ['position', i]) != -1}>
+        steps.push(<Step completed={false} key={i} active={findIndex(this.props.queue.position, ['position', i]) != -1}>
             <StepLabel></StepLabel>
         </Step>);
     }

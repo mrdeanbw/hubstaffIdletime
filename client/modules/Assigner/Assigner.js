@@ -45,17 +45,15 @@ class Assigner extends Component {
       }
     };
     this.pollingStarted = false;
-    this.assignCountWait = false;
   }
   
   componentDidMount() {
     this.props.dispatch(fetchProjects());
-    this.props.dispatch(fetchAssignmentCount());
     this.props.dispatch(fetchSubmission());
   }
 
   startCheckingAssignmentCount = () => {
-    if (!this.pollingStarted && this.props.assignCount < 2) {
+    if (!this.pollingStarted) {
       return;
     }
     console.log('Fetching assign count');
@@ -64,7 +62,7 @@ class Assigner extends Component {
   }
 
   startPollingPositions = (submissionId) => {
-    if (!this.pollingStarted || this.assignCountWait) {
+    if (!this.pollingStarted || this.props.assignCount >= 2) {
       return;
     }
     console.log("Starting to poll!");
@@ -73,14 +71,10 @@ class Assigner extends Component {
     setTimeout(() => this.startPollingPositions(submissionId), 120000);
   }
 
-  startRefreshSubmission = (submission, timeout) => {
-    if (!this.pollingStarted || assignCountWait) {
-      return;
-    }
+  startRefreshSubmission = (submission) => {
     console.log("Starting Refresh!");
     if (submission.status != 'fulfilled') {
       this.props.dispatch(refreshSubmission(submission.id));
-      setTimeout(() => this.startRefreshSubmission(submission, timeout), timeout);
     }
   }
 
@@ -91,12 +85,53 @@ class Assigner extends Component {
         if (this.props.assignCount != nextProps.assignCount) {
           this.props.dispatch(setError("Account is full now! Waiting for submissions to be less than 2."));
         }
-        // Do not continue to poll
-        this.assignCountWait = true;
         return;
     }
 
-    this.assignCountWait = false;
+    if (this.pollingStarted && this.props.assignCount >= 2 && this.props.assignCount != nextProps.assignCount) {
+      
+      // The assign count has gone below 2, restart the current submission
+      if (nextProps.currentSubmission && nextProps.currentSubmission.length > 0) {
+          // Start position polling
+          nextProps.currentSubmission.map(value => {
+            this.startPollingPositions(value.id);
+          }, this);
+
+          // Check to see the refresh timeout has elapsed or not
+          let endsAt = new Date(nextProps.currentSubmission[0].closed_at);
+          let timeout = endsAt.getTime() - Date.now();
+
+          if (timeout < 0 && this.props.selectedProjects && this.props.selectedProjects.length > 0) {
+              // None of the submissions can be refreshed as all have expired, need to resubmit
+              console.log('Resubmit!!');
+              this.handlePostSubmissions(this.props.selectedProjects);
+          }
+          else {
+            // just refresh the current submissions
+            nextProps.currentSubmission.map(value => {
+                this.startRefreshSubmission(value);
+            }, this);
+          }
+      }
+      else if (this.props.selectedProjects && this.props.selectedProjects.length > 0) {
+        // might have fulfilled all submissions, resubmit
+        console.log('Resubmit!!');
+        this.handlePostSubmissions(this.props.selectedProjects);
+      }
+    }
+
+    if (this.pollingStarted && nextProps.currentSubmission && nextProps.currentSubmission.length > 0) {
+      // Check to see the refresh timeout has elapsed or not
+      let endsAt = new Date(nextProps.currentSubmission[0].closed_at);
+      let timeout = endsAt.getTime() - Date.now();
+      
+      if (timeout < 300000) {   // minus 5 minutes
+        // Needs refresh
+        nextProps.currentSubmission.map(value => {
+          this.startRefreshSubmission(value);
+        }, this);
+      }
+    }
     
     // Fetch positions if we have a current submission
     if (!this.pollingStarted && nextProps.currentSubmission && nextProps.currentSubmission.length > 0) {
@@ -109,32 +144,11 @@ class Assigner extends Component {
       
       // Start checking for assignment count
       this.startCheckingAssignmentCount();
-      
-      let endsAt = new Date(nextProps.currentSubmission[0].closed_at);
-      let timeout = endsAt.getTime() - Date.now() - 300000; // minus 5 minutes
-
-      if (nextProps.currentSubmission[0].status == 'fulfilled' || timeout < 0) {
-        // Resubmit a new request
-        this.props.dispatch(updateSubmission([]));
-        this.props.dispatch(clearPositions());
-        this.handlePostSubmissions(this.props.selectedProjects);
-        return;
-      }
-      
-      // Set timer for refresh
-      nextProps.currentSubmission.map(value => {
-        this.startRefreshSubmission(value, timeout);
-      }, this);
 
       // Start position polling
       nextProps.currentSubmission.map(value => {
         this.startPollingPositions(value.id);
       }, this);
-    }
-    else if (this.pollingStarted && this.props.selectedProjects && this.props.selectedProjects.length > 0) {
-      // Resubmit a new request
-      console.log('Resubmit!!');
-      this.handlePostSubmissions(this.props.selectedProjects);
     }
   }
 
@@ -213,7 +227,7 @@ class Assigner extends Component {
         </Card>
         <Toolbar>
           <ToolbarGroup firstChild={true}>
-            <ToolbarTitle text={"Queuing Status: " + (this.pollingStarted ? "Started" : "Stopped")} />
+            <ToolbarTitle text={"Queuing Status: " + (this.props.assignCount >= 2 ? "Waiting..." : (this.pollingStarted ? "Started" : "Stopped"))} />
           </ToolbarGroup>
           <ToolbarSeparator />
           <ToolbarGroup>
@@ -221,7 +235,7 @@ class Assigner extends Component {
           </ToolbarGroup>
           <ToolbarSeparator />
           <ToolbarGroup>
-            <ToolbarTitle text={"Submission Status: " + (this.props.currentSubmission.length > 0 ? this.props.currentSubmission[0].status : "No Submission Yet!")} />
+            <ToolbarTitle text={"Assigned Count: " + this.props.assignCount} />
           </ToolbarGroup>
         </Toolbar>
         <QueueList queues={this.props.positions} handleProjectAssigned={this.handleProjectAssigned} />

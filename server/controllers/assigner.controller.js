@@ -66,7 +66,7 @@ export function postProjects(req, res) {
           let error = null;
           let returnResults = [];
           results.map(value => {
-            if (value.error || value.FetchError) {
+            if (value.error || value.FetchError || value.name == 'FetchError') {
               error = value.error || value.FetchError;
             }
             else {
@@ -96,7 +96,7 @@ export function getPositions(req, res) {
         password: account.password
       }
       getAuthToken(credentials).then(token => {
-        //console.log(token);
+        console.log(token);
         request(submitUrl + "/" + req.params.submissionId + "/waits.json", {'Authorization' : token}).then(response => {
           console.log('Positions');
           console.log(response);
@@ -129,7 +129,7 @@ export function getSubmission(req, res) {
           console.log(response);
           res.status(200).json({
             success: true,
-            submission: response.error || response.FetchError ? [] : response
+            submission: response.error || response.FetchError || response.name == 'FetchError'? [] : response
           });
         });
       })
@@ -188,9 +188,9 @@ export function refresh(req, res) {
         password: account.password
       }
       getAuthToken(credentials).then(token => {
-        //console.log('Refreshing project...');
+        console.log('Refreshing project...');
         request(submitUrl + "/" + req.params.submissionId + "/refresh.json", {'Authorization' : token}, 'put').then(response => {
-          //console.log(response);
+          console.log(response);
           res.status(200).json({
             success: response.error ? false : true,
             submission: response.error ? {} : response,

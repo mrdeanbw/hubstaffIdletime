@@ -44,7 +44,10 @@ class Assigner extends Component {
         margin: 12
       }
     };
-    this.pollingStarted = false;
+    let pollingPref = localStorage.getItem('pollingStarted');
+    //console.log(pollingPref);
+    //console.log(JSON.parse(pollingPref).pollingStarted);
+    this.pollingStarted = pollingPref ? JSON.parse(pollingPref).pollingStarted : false;
     this.queuingStarted = false;
   }
   
@@ -60,7 +63,16 @@ class Assigner extends Component {
     }
     console.log('Fetching assign count');
     this.props.dispatch(fetchAssignmentCount());
-    setTimeout(() => this.startCheckingAssignmentCount(), 120000);
+    setTimeout(() => this.startCheckingAssignmentCount(), 60000);
+  }
+
+  startSubmissionPolling = () => {
+    if (!this.pollingStarted) {
+      return;
+    }
+    console.log('Fetching Submissions');
+    this.props.dispatch(fetchSubmission());
+    setTimeout(() => this.startSubmissionPolling(), 60000);
   }
 
   startPollingPositions = (submissionId) => {
@@ -86,6 +98,13 @@ class Assigner extends Component {
       // noop
       return;
     }
+
+    if (nextProps.assignCount >=2) {
+        // Account is full, need to wait, so start a assignment count check thread every 2 minutes
+        if (this.props.assignCount != nextProps.assignCount) {
+          this.props.dispatch(setError("Account is full now! Waiting for submissions to be less than 2."));
+        }
+    }
     
     if (nextProps.assignCount < 2 && (!nextProps.currentSubmission || nextProps.currentSubmission.length == 0)) {
       
@@ -99,6 +118,7 @@ class Assigner extends Component {
       // Check to see the refresh timeout has elapsed or not
       let endsAt = new Date(nextProps.currentSubmission[0].closed_at);
       let timeout = endsAt.getTime() - Date.now();
+      console.log('Checking Timeout');
       
       if (timeout < 300000) {   // minus 5 minutes
         // Needs refresh
@@ -121,6 +141,9 @@ class Assigner extends Component {
       nextProps.currentSubmission.map(value => {
         this.startPollingPositions(value.id);
       }, this);
+
+      // Start submission polling
+      this.startSubmissionPolling();
     }
   }
 
@@ -133,6 +156,7 @@ class Assigner extends Component {
 
   handlePostSubmissions = (selectedProjects) => {
     this.pollingStarted = true;
+    localStorage.setItem('pollingStarted', JSON.stringify({pollingStarted : true}));
     // Start checking for assignment count
     this.startCheckingAssignmentCount();
     if (this.props.assignCount < 2) {
@@ -145,6 +169,7 @@ class Assigner extends Component {
 
   handleCancelSubmission = (submission) => {
     this.pollingStarted = false;
+    localStorage.removeItem('pollingStarted');
     this.queuingStarted = false;
     submission.map(value => {
       this.props.dispatch(cancelSubmission(value.id));
@@ -201,7 +226,7 @@ class Assigner extends Component {
                 disabled={this.props.selectedProjects.length == 0 || this.props.currentSubmission.length > 0 || this.pollingStarted}  style={this.styles.startButton} />
             <RaisedButton primary={true} label="Cancel"
                 onClick={() => this.handleCancelSubmission(this.props.currentSubmission)}
-                disabled={!this.props.currentSubmission.length > 0}  style={this.styles.startButton} />
+                disabled={!this.pollingStarted}  style={this.styles.startButton} />
           </CardActions>
         </Card>
         <Toolbar>

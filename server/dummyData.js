@@ -3,7 +3,33 @@ import Role from './models/role';
 import Account from './models/account';
 import cuid from 'cuid';
 
-export default function () {
+export default function () {  
+  
+  // Update account
+  // Account.findOne({ email: 'xmetalced@gmail.com' }).exec((error, account) => {
+  //   if (error) {
+  //     console.log("Error retrieving Account!!");
+  //   }
+  //   else {
+  //     User.findOneAndUpdate({ email: 'tcheutchouasteve@gmail.com' }, {password: 'krankbuzz2016', accounts: [account]}).exec((err, saved) => {
+  //       console.log(err);
+  //       console.log(saved);
+  //     });
+  //   }
+  // });
+
+  // Create Account
+  // const account = new Account({email: 'baris.k.005@gmail.com', password: 'CityU2011', cuid: cuid()});
+
+  //   Account.create([account], (error) => {
+  //   if (!error) {
+  //     console.log('Created new Accounts....');
+  //   }
+  //   else {
+  //     console.log(error);
+  //   }
+  // });
+
   User.count().exec((err, count) => {
     if (count > 0) {
       return;

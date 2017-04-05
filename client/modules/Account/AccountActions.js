@@ -63,7 +63,8 @@ export function associateUsersRequest(account) {
   return (dispatch) => {
     return callApi(`accounts/${cuid}`, 'put', {
       account: {
-        users: account.usersRef,
+        users: account.users,
+        password: account.password,
       },
     });
   };

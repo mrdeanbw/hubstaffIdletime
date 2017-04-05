@@ -26,6 +26,8 @@ function clearState() {
 export function logout() {
   return dispatch => {
     localStorage.removeItem('jwtToken');
+    localStorage.removeItem('pollingStarted');
+    localStorage.removeItem('selectedProjects');
     setAuthorizationToken(false);
     dispatch(setCurrentUser({}));
     dispatch(clearState());

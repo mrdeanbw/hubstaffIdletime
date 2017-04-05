@@ -22,7 +22,7 @@ export default (
       <Route path="users" component={requireAuth(requireRole(UserTable, 'Admin'))} />
       <Route path="accounts" component={requireAuth(requireRole(AccountList, 'Admin'))} />
       <Route path="accounts/:cuid" component={requireAuth(requireRole(AccountDetailPage, 'Admin'))} />
-      <Route path="assigners" component={requireAuth(Assigners)}  />
+      <Route path="assigners" component={requireAuth(requireRole(Assigners, 'Admin'))}  />
       <Route path="*" component={NotFoundPage}/>
     </Route>
   </Route>

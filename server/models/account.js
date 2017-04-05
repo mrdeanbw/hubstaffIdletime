@@ -9,7 +9,7 @@ const accountSchema = new Schema({
   },
   password: String,
   cuid: { type: 'String', required: true },
-  users: [{type: Schema.Types.ObjectId, ref : 'User'}],
+  users: [{ type: Schema.Types.ObjectId, ref: 'User' }],
 });
 
 /**
@@ -18,8 +18,13 @@ const accountSchema = new Schema({
 accountSchema.pre('save', function saveHook(next) {
   const account = this;
 
-  // proceed further only if the password is modified or the user is new
   account.cuid = cuid();
+  account.users.forEach(function (user) {
+    if (typeof user.accounts !== 'undefined') {
+      user.accounts.push(account._id);
+      user.save();
+    }
+  }, this);
 
   return next();
 });

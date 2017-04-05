@@ -19,7 +19,8 @@ export function getProjects(req, res) {
         //console.log(token);
         request(projectsUrl, {'Authorization' : token}).then(response => {
           // TODO: handle multiple accounts, currently return projects of first account only.
-          //console.log(response);
+          console.log('Projects');
+          console.log(response);
           res.status(200).json({
             success: true,
             projects: response

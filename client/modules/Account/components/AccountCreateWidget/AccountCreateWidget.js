@@ -14,9 +14,10 @@ export class AccountCreateWidget extends Component {
     }
   };
 
-  render() {
+render() {
+    const cls = `${styles.form} ${styles.appear}`;
     return (
-      <div className={styles.appear}>
+      <div className={cls}>
         <div className={styles['form-content']}>
           <h2 className={styles['form-title']}>Create New Account</h2>
           <input placeholder='E-mail' className={styles['form-field']} ref="email" />

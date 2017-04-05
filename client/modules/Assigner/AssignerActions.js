@@ -21,6 +21,7 @@ export function addProjects(projects) {
 export function fetchProjects() {
   return (dispatch) => {
     return callApi('projects').then(res => {
+      console.log(res.projects);
       dispatch(addProjects(res.projects));
     });
   };

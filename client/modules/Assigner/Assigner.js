@@ -94,6 +94,30 @@ class Assigner extends Component {
 
   componentWillReceiveProps(nextProps) {
 
+    // Fetch positions if we have a current submission
+    if (!this.queuingStarted && nextProps.currentSubmission && nextProps.currentSubmission.length > 0) {
+      this.queuingStarted = true;
+      this.pollingStarted = true;
+
+      localStorage.setItem('pollingStarted', JSON.stringify({pollingStarted : true}));
+      localStorage.setItem('selectedProjects', JSON.stringify(nextProps.currentSubmission[0].submission_request_projects));
+      // Start checking for assignment count
+      this.startCheckingAssignmentCount();
+      
+      // Select the projects whose submissions are already in progress.
+      nextProps.currentSubmission[0].submission_request_projects.map(value => {
+        this.props.dispatch(selectProject(value.project_id));
+      }, this);
+
+      // Start position polling
+      nextProps.currentSubmission.map(value => {
+        this.startPollingPositions(value.id);
+      }, this);
+
+      // Start submission polling
+      this.startSubmissionPolling();
+    }
+
     if (!this.pollingStarted) {
       // noop
       return;
@@ -105,13 +129,21 @@ class Assigner extends Component {
           this.props.dispatch(setError("Account is full now! Waiting for submissions to be less than 2."));
         }
     }
+
+    if (!this.queuingStarted && nextProps.projects && nextProps.projects.length > 0) {
+      // The projects have been fetched and we have not started the queuing yet, select the projects from local localStorage
+      let projectsToSelect = localStorage.getItem('selectedProjects');
+      projectsToSelect = projectsToSelect ? JSON.parse(projectsToSelect) : [];
+      projectsToSelect.map(value => {
+        this.props.dispatch(selectProject(value.project_id));
+      }, this);
+    }
     
-    if (nextProps.assignCount < 2 && (!nextProps.currentSubmission || nextProps.currentSubmission.length == 0)) {
-      
-      // The assign count has gone below 2, and there are no submissions, start a new submisison.
-      this.props.dispatch(postSubmissions(this.props.selectedProjects.map(value => {
-        return {project_id: value.project_id, language: 'en-us'};
-      })));
+    if (this.queuingStarted && nextProps.assignCount < 2 && (!nextProps.currentSubmission || nextProps.currentSubmission.length == 0)) {
+      if (this.props.selectedProjects.length > 0) {
+        // The assign count has gone below 2, and there are no submissions, start a new submisison.
+        this.handlePostSubmissions(this.props.selectedProjects);
+      }
     }
 
     if (this.queuingStarted && nextProps.currentSubmission && nextProps.currentSubmission.length > 0) {
@@ -127,24 +159,6 @@ class Assigner extends Component {
         }, this);
       }
     }
-    
-    // Fetch positions if we have a current submission
-    if (!this.queuingStarted && nextProps.currentSubmission && nextProps.currentSubmission.length > 0) {
-      this.queuingStarted = true;
-      
-      // Select the projects whose submissions are already in progress.
-      nextProps.currentSubmission[0].submission_request_projects.map(value => {
-        this.props.dispatch(selectProject(value.project_id));
-      }, this);
-
-      // Start position polling
-      nextProps.currentSubmission.map(value => {
-        this.startPollingPositions(value.id);
-      }, this);
-
-      // Start submission polling
-      this.startSubmissionPolling();
-    }
   }
 
   handleToggleProject = (projectId) => {
@@ -157,6 +171,7 @@ class Assigner extends Component {
   handlePostSubmissions = (selectedProjects) => {
     this.pollingStarted = true;
     localStorage.setItem('pollingStarted', JSON.stringify({pollingStarted : true}));
+    localStorage.setItem('selectedProjects', JSON.stringify(selectedProjects));
     // Start checking for assignment count
     this.startCheckingAssignmentCount();
     if (this.props.assignCount < 2) {
@@ -170,6 +185,7 @@ class Assigner extends Component {
   handleCancelSubmission = (submission) => {
     this.pollingStarted = false;
     localStorage.removeItem('pollingStarted');
+    localStorage.removeItem('selectedProjects');
     this.queuingStarted = false;
     submission.map(value => {
       this.props.dispatch(cancelSubmission(value.id));
@@ -235,7 +251,7 @@ class Assigner extends Component {
           </ToolbarGroup>
           <ToolbarSeparator />
           <ToolbarGroup>
-            <ToolbarTitle text={"Next Refresh: " + (this.props.currentSubmission.length > 0 ? this.props.currentSubmission[0].closed_at : "No Submission Yet!")} />
+            <ToolbarTitle text={"Next Refresh: " + (this.props.currentSubmission && this.props.currentSubmission.length > 0 ? this.props.currentSubmission[0].closed_at : "No Submission Yet!")} />
           </ToolbarGroup>
           <ToolbarSeparator />
           <ToolbarGroup>

@@ -5,10 +5,13 @@ import { getAuthToken } from '../util/request';
 import {sendMail} from '../util/mailer';
 const async = require("async");
 const numCPUs = require('os').cpus().length;
+import Account from '../models/account';
+
 
 export function getProjects(req, res) {
   // Get the udacity account token
   Account.findOne({ cuid: req.params.cuid }).exec((err, account) => {
+          console.log("cuid :"+req.params.cuid);
     if (err) {
       res.status(500).send(err);
     }
@@ -23,7 +26,7 @@ export function getProjects(req, res) {
         // TODO: handle multiple accounts, currently return projects of first account only.
         console.log('Projects');
         console.log(response);
-        response.forEach(project => project.cuid = account.cuid );
+        response.forEach((project) => project.cuid = account.cuid );
         res.status(200).json({
           success: true,
           projects: response

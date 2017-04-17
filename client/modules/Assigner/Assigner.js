@@ -7,7 +7,7 @@ import Chip from 'material-ui/Chip';
 import QueueList from './components/QueueList';
 import Dialog from 'material-ui/Dialog';
 import FlatButton from 'material-ui/FlatButton';
-import {Toolbar, ToolbarGroup, ToolbarSeparator, ToolbarTitle} from 'material-ui/Toolbar';
+import { Toolbar, ToolbarGroup, ToolbarSeparator, ToolbarTitle } from 'material-ui/Toolbar';
 import { fetchAccounts, toggleAccount } from './../Account/AccountActions';
 import { getAccounts } from '../../modules/Account/AccountReducer';
 import SelectField from 'material-ui/SelectField';
@@ -27,7 +27,7 @@ class Assigner extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      accountCuid: null
+      value: null
     };
     this.styles = {
       chip: {
@@ -98,7 +98,7 @@ class Assigner extends Component {
       this.queuingStarted = true;
       this.pollingStarted = true;
 
-      localStorage.setItem('pollingStarted', JSON.stringify({pollingStarted : true}));
+      localStorage.setItem('pollingStarted', JSON.stringify({ pollingStarted: true }));
       localStorage.setItem('selectedProjects', JSON.stringify(nextProps.currentSubmission[0].submission_request_projects));
       // Start checking for assignment count
       this.startCheckingAssignmentCount();
@@ -169,14 +169,14 @@ class Assigner extends Component {
 
   handlePostSubmissions = (selectedProjects) => {
     this.pollingStarted = true;
-    localStorage.setItem('pollingStarted', JSON.stringify({pollingStarted : true}));
+    localStorage.setItem('pollingStarted', JSON.stringify({ pollingStarted: true }));
     localStorage.setItem('selectedProjects', JSON.stringify(selectedProjects));
     // Start checking for assignment count
     this.startCheckingAssignmentCount();
     if (this.props.assignCount < 2) {
       // Start a submission only when assign count < 2
       this.props.dispatch(postSubmissions({
-          cuid: this.state.accountCuid,
+          cuid: this.state.value,
           projects: selectedProjects.map(value => {
             return {project_id: value.project_id, language: 'en-us'};
       })}));
@@ -199,7 +199,7 @@ class Assigner extends Component {
   }
 
   handleGetProjects = () => {
-    this.props.dispatch(fetchProjects(this.state.accountCuid));
+    this.props.dispatch(fetchProjects(this.state.value));
   }
 
   renderChip(data) {
@@ -225,9 +225,9 @@ class Assigner extends Component {
     this.props.dispatch(setError(""));
   };
 
-  handleChange = (event, index, value) => this.state.accountCuid = value;
+  handleChange = (event, index, value) => this.setState({value});
 
-  
+
   render() {
     const actions = [
       <FlatButton
@@ -245,7 +245,7 @@ class Assigner extends Component {
             actAsExpander={true}
             showExpandableButton={true}
           />
-          
+
           <div style={this.styles.wrapper} >
             <SelectField
               floatingLabelText="Frequency"
@@ -253,14 +253,14 @@ class Assigner extends Component {
               onChange={this.handleChange}
               disabled={this.pollingStarted}
             >
-            {this.props.accounts.map(this.renderAccount, this)}
+              {this.props.accounts.map(this.renderAccount, this)}
             </SelectField>
           </div>
 
           <CardActions>
             <RaisedButton primary={true} label="FetchProjects"
-                onClick={() => this.handleGetProjects()}
-                disabled={this.state.accountCuid == null || this.pollingStarted}  style={this.styles.startButton} />
+              onClick={() => this.handleGetProjects()}
+              disabled={this.state.value == null } style={this.styles.startButton} />
           </CardActions>
         </Card>
         <Card expanded={true}>
@@ -270,18 +270,18 @@ class Assigner extends Component {
             actAsExpander={true}
             showExpandableButton={true}
           />
-          
+
           <div style={this.styles.wrapper} >
             {this.props.projects.map(this.renderChip, this)}
           </div>
 
           <CardActions>
             <RaisedButton primary={true} label="Start"
-                onClick={() => this.handlePostSubmissions(this.props.selectedProjects)}
-                disabled={this.props.selectedProjects.length == 0 || this.props.currentSubmission.length > 0 || this.pollingStarted}  style={this.styles.startButton} />
+              onClick={() => this.handlePostSubmissions(this.props.selectedProjects)}
+              disabled={this.props.selectedProjects.length == 0 || this.props.currentSubmission.length > 0 || this.pollingStarted} style={this.styles.startButton} />
             <RaisedButton primary={true} label="Cancel"
-                onClick={() => this.handleCancelSubmission(this.props.currentSubmission)}
-                disabled={!this.pollingStarted}  style={this.styles.startButton} />
+              onClick={() => this.handleCancelSubmission(this.props.currentSubmission)}
+              disabled={!this.pollingStarted} style={this.styles.startButton} />
           </CardActions>
         </Card>
         <Toolbar>
@@ -305,7 +305,7 @@ class Assigner extends Component {
           open={this.props.error && this.props.error.length > 0}
           onRequestClose={this.handleClose}
         >
-        {this.props.error}
+          {this.props.error}
         </Dialog>
       </div>
     );
@@ -327,7 +327,7 @@ const mapStateToProps = (state) => {
 };
 
 const mergeProps = (stateProps, dispatchProps, ownProps) => {
-   return { ...ownProps, ...stateProps, ...dispatchProps };
+  return { ...ownProps, ...stateProps, ...dispatchProps };
 }
 
 Assigner.propTypes = {

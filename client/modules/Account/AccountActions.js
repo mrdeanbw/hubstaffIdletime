@@ -4,6 +4,7 @@ import callApi from '../../util/apiCaller';
 export const ADD_ACCOUNT = 'ADD_ACCOUNT';
 export const ADD_ACCOUNTS = 'ADD_ACCOUNTS';
 export const DELETE_ACCOUNT = 'DELETE_ACCOUNT';
+export const TOGGLE_ACCOUNT = 'TOGGLE_ACCOUNT';
 
 // Export Actions
 export function addAccount(account) {
@@ -67,5 +68,12 @@ export function associateUsersRequest(account) {
         password: account.password,
       },
     });
+  };
+}
+
+export function toggleAccount(cuid) {
+  return {
+    type: TOGGLE_ACCOUNT,
+    cuid,
   };
 }

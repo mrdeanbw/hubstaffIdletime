@@ -18,9 +18,9 @@ export function addProjects(projects) {
   };
 }
 
-export function fetchProjects() {
+export function fetchProjects(accountId) {
   return (dispatch) => {
-    return callApi('projects').then(res => {
+    return callApi('projects/' + accountId).then(res => {
       console.log(res.projects);
       dispatch(addProjects(res.projects));
     });

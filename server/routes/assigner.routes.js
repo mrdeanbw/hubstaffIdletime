@@ -4,7 +4,7 @@ import * as AssignerController from '../controllers/assigner.controller';
 const router = new Router();
 
 // Get all Accounts
-router.route('/projects').get(AssignerController.getProjects);
+router.route('/projects/:cuid').get(AssignerController.getProjects);
 
 // Post submissions to projects
 router.route('/projects').post(AssignerController.postProjects);

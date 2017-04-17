@@ -8,6 +8,7 @@ import QueueList from './components/QueueList';
 import Dialog from 'material-ui/Dialog';
 import FlatButton from 'material-ui/FlatButton';
 import {Toolbar, ToolbarGroup, ToolbarSeparator, ToolbarTitle} from 'material-ui/Toolbar';
+import { fetchAccounts, toggleAccount } from './../Account/AccountActions';
 
 // Import Style
 import styles from './Assigner.css';
@@ -22,12 +23,9 @@ class Assigner extends Component {
   
   constructor(props) {
     super(props);
-    this.state = {chipData: [
-      {key: 0, label: 'Angular'},
-      {key: 1, label: 'JQuery'},
-      {key: 2, label: 'Polymer'},
-      {key: 3, label: 'ReactJS'},
-    ]};
+    this.state = {
+      accountCuid: null
+    };
     this.styles = {
       chip: {
         margin: 4,
@@ -52,9 +50,7 @@ class Assigner extends Component {
   }
   
   componentDidMount() {
-    this.props.dispatch(fetchProjects());
-    this.props.dispatch(fetchAssignmentCount());
-    this.props.dispatch(fetchSubmission());
+    this.props.dispatch(fetchAccounts());
   }
 
   startCheckingAssignmentCount = () => {
@@ -176,9 +172,11 @@ class Assigner extends Component {
     this.startCheckingAssignmentCount();
     if (this.props.assignCount < 2) {
       // Start a submission only when assign count < 2
-      this.props.dispatch(postSubmissions(selectedProjects.map(value => {
-        return {project_id: value.project_id, language: 'en-us'};
-      })));
+      this.props.dispatch(postSubmissions({
+          cuid: this.state.accountCuid,
+          projects: selectedProjects.map(value => {
+            return {project_id: value.project_id, language: 'en-us'};
+      })}));
     }
   }
 
@@ -197,6 +195,10 @@ class Assigner extends Component {
     this.props.dispatch(notifyAssignedProject(projectId));
   }
 
+  handleGetProjects = () => {
+    this.props.dispatch(fetchProjects(this.state.accountCuid));
+  }
+
   renderChip(data) {
     return (
       <Chip
@@ -210,9 +212,18 @@ class Assigner extends Component {
     );
   }
 
+  renderAccount(account) {
+    return (
+      <MenuItem value={account.cuid} primaryText={account.email} />
+    );
+  }
+
   handleClose = () => {
     this.props.dispatch(setError(""));
   };
+
+  handleChange = (event, index, value) => this.state.accountCuid = value;
+
   
   render() {
     const actions = [
@@ -224,6 +235,31 @@ class Assigner extends Component {
     ];
     return (
       <div>
+        <Card expanded={true}>
+          <CardHeader
+            title="Accounts"
+            subtitle="Select the account to queue"
+            actAsExpander={true}
+            showExpandableButton={true}
+          />
+          
+          <div style={this.styles.wrapper} >
+            <SelectField
+              floatingLabelText="Frequency"
+              value={this.state.value}
+              onChange={this.handleChange}
+              disabled={this.pollingStarted}
+            >
+            {this.props.accounts.map(this.renderAccount, this)}
+            </SelectField>
+          </div>
+
+          <CardActions>
+            <RaisedButton primary={true} label="FetchProjects"
+                onClick={() => this.handleGetProjects()}
+                disabled={this.state.accountCuid == null || this.pollingStarted}  style={this.styles.startButton} />
+          </CardActions>
+        </Card>
         <Card expanded={true}>
           <CardHeader
             title="Projects"
@@ -282,7 +318,8 @@ const mapStateToProps = (state) => {
     selectedProjects: getSelectedProjects(state),
     currentSubmission: getSubmission(state),
     assignCount: getAssignCount(state),
-    error: getError(state)
+    error: getError(state),
+    accounts: getAccounts(state),
   };
 };
 
@@ -298,6 +335,7 @@ Assigner.propTypes = {
   assignCount: PropTypes.number.isRequired,
   error: PropTypes.string,
   handleProjectAssigned: PropTypes.func.isRequired,
+  accounts: PropTypes.array.isRequired,
 };
 
 Assigner.contextTypes = {

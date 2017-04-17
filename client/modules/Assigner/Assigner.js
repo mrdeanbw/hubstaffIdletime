@@ -9,6 +9,9 @@ import Dialog from 'material-ui/Dialog';
 import FlatButton from 'material-ui/FlatButton';
 import {Toolbar, ToolbarGroup, ToolbarSeparator, ToolbarTitle} from 'material-ui/Toolbar';
 import { fetchAccounts, toggleAccount } from './../Account/AccountActions';
+import { getAccounts } from '../../modules/Account/AccountReducer';
+import SelectField from 'material-ui/SelectField';
+import MenuItem from 'material-ui/MenuItem';
 
 // Import Style
 import styles from './Assigner.css';

@@ -91,6 +91,7 @@ export function updateAccount(req, res) {
 
     account.users = req.body.account.users;
     account.password = req.body.account.password;
+    account.threads = req.body.account.threads;
     account.save((err, saved) => {
       if (err) {
         res.status(500).send(err);

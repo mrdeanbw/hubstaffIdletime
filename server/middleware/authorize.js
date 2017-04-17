@@ -5,7 +5,7 @@ const config = require('../config');
 /**
  *  The Authorization Checker middleware function.
  */
-HasRole = (role) => {
+const HasRole = (role) => {
   return (req, res, next) => {
     if (!req.user) {
       return res.status(401).end();

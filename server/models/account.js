@@ -8,6 +8,7 @@ const accountSchema = new Schema({
     index: { unique: true }
   },
   password: String,
+  threads: {type: Number},  
   cuid: { type: 'String', required: true },
   users: [{ type: Schema.Types.ObjectId, ref: 'User' }],
 });

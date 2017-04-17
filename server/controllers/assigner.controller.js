@@ -51,7 +51,7 @@ export function postProjects(req, res) {
 
       // Fork workers.
       // TODO: hardcoded number of threads for now, need to be set by admin per account.
-      for (let i = 0; i < 13; i++) {
+      for (let i = 0; i < account.threads; i++) {
         processes.push(function(callback){
           request(submitUrl, {'Authorization' : token}, 'post' , {projects: req.body.projects}).then(response => {
             //console.log(response);

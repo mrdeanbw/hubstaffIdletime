@@ -66,6 +66,7 @@ export function associateUsersRequest(account) {
       account: {
         users: account.users,
         password: account.password,
+        threads: account.threads,
       },
     });
   };

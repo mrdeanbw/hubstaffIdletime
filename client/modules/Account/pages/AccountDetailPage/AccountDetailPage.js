@@ -29,6 +29,7 @@ class AccountDetailPage extends Component {
         <div className={`${styles['single-account']} ${styles['account-detail']}`}>
           <h3 className={styles['account-title']}>{this.props.account.email}</h3>
           <input placeholder='Password' className={styles['form-field']} type="password" ref="password" />
+          <input placeholder='Number of threads' className={styles['form-field']}  type='number' ref="threads" />
           <p>Associate users with this account.</p><br />
           {this.props.users.map((user, i) => {
             var userID=user._id
@@ -55,8 +56,9 @@ class AccountDetailPage extends Component {
       }
     });
     const passwordRefs = this.refs.password.value
+    const threadsRefs = this.refs.threads.value
     if (usersRef) {
-      this.props.dispatch(associateUsersRequest({ users: usersRef || [], password: passwordRefs, cuid: this.props.account.cuid }));
+      this.props.dispatch(associateUsersRequest({ users: usersRef || [], password: passwordRefs, threads:threadsRefs, cuid: this.props.account.cuid }));
     }
   }
 }

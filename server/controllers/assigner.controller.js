@@ -11,7 +11,6 @@ import Account from '../models/account';
 export function getProjects(req, res) {
   // Get the udacity account token
   Account.findOne({ cuid: req.params.cuid }).exec((err, account) => {
-          console.log("cuid :"+req.params.cuid);
     if (err) {
       res.status(500).send(err);
     }
@@ -24,12 +23,12 @@ export function getProjects(req, res) {
       //console.log(token);
       request(projectsUrl, {'Authorization' : token}).then(response => {
         // TODO: handle multiple accounts, currently return projects of first account only.
-        console.log('Projects');
-        console.log(response);
         response.forEach((project) => project.cuid = account.cuid );
+        console.log("response :"+response);
         res.status(200).json({
           success: true,
-          projects: response
+          projects: response.error || response.FetchError || response.name == 'FetchError'
+                        ? [] : response
         });
       });
     });
@@ -40,6 +39,8 @@ export function postProjects(req, res) {
   // TODO: check to see if we have an projects.
   // Get the udacity account token
   Account.findOne({ cuid: req.body.cuid }).exec((err, account) => {
+      console.log(req.body.cuid);
+
     if (err) {
       res.status(500).send(err);
     }
@@ -108,7 +109,7 @@ export function getPositions(req, res) {
       request(submitUrl + "/" + req.params.submissionId + "/waits.json", {'Authorization' : token}).then(response => {
         console.log('Positions');
         console.log(response);
-        response.forEach(project => project.cuid = account.cuid );
+        response.forEach((project) => project.cuid = account.cuid );
         res.status(200).json({
           success: true,
           submissionId: req.params.submissionId,

@@ -13,9 +13,9 @@ const HasRole = (role) => {
 
     // Check user roles
     return req.user.populate('roles', (err, user) => {
-        if (!user.roles.includes(role)) {
-          return res.status(401).end();
-        }
+     if (!user.roles.map(value => { return value.name }).includes(role)) {
+         return res.status(401).end();
+       }
         return next();
     });
   };

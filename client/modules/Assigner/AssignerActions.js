@@ -75,7 +75,7 @@ export function postSubmissions(projects) {
   };
 }
 
-export function cancelSubmission(submissionId) {
+export function cancelSubmission(cuid,submissionId) {
   return (dispatch) => {
     return callApi('projects/cancel/' + submissionId, 'get').then(res => {
       if (res.success) {
@@ -89,7 +89,7 @@ export function cancelSubmission(submissionId) {
   };
 }
 
-export function notifyAssignedProject(projectId) {
+export function notifyAssignedProject(projectId,cuid) {
   return (dispatch) => {
     return callApi('projects/notify/' + projectId, 'get').then(res => {
       if (res.success) {
@@ -101,7 +101,7 @@ export function notifyAssignedProject(projectId) {
   };
 }
 
-export function fetchSubmission() {
+export function fetchSubmission(cuid) {
   return (dispatch) => {
     return callApi('projects/submission').then(res => {
       dispatch(updateSubmission(res.submission));
@@ -123,7 +123,7 @@ export function clearPositions() {
   };
 }
 
-export function fetchPositions(submissionId) {
+export function fetchPositions(cuid,submissionId) {
   return (dispatch) => {
     return callApi('projects/positions/' + submissionId, 'get').then(res => {
       dispatch(updatePositions(res.submissionId, res.positions));
@@ -131,7 +131,7 @@ export function fetchPositions(submissionId) {
   };
 }
 
-export function fetchAssignmentCount() {
+export function fetchAssignmentCount(cuid) {
   return (dispatch) => {
     return callApi('projects/assigncount', 'get').then(res => {
       dispatch(updateAssignCount(res.assignCount));
@@ -139,7 +139,7 @@ export function fetchAssignmentCount() {
   };
 }
 
-export function refreshSubmission(submissionId) {
+export function refreshSubmission(cuid,submissionId) {
   return (dispatch) => {
     return callApi('projects/refresh/' + submissionId, 'get').then(res => {
       if(res.success) {

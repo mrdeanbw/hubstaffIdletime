@@ -72,7 +72,7 @@ app.use('/api/auth', authRoutes);
 const authCheckMiddleware = require('./middleware/auth-check');
 const authorizationMiddleware = require('./middleware/authorize');
 app.use('/api', authCheckMiddleware);
-app.use('/api/projects', authorizationMiddleware.HasAdminRole);
+app.use('/api/projects', authorizationMiddleware.HasAdminRole());
 app.use('/api', posts);
 app.use('/api', users);
 app.use('/api', roles);

@@ -40,16 +40,18 @@ class Assigner extends Component {
       wrapper: {
         display: 'flex',
         flexWrap: 'wrap',
+        margin:  12,
       },
       startButton: {
         margin: 12
       }
     };
-    let pollingPref = localStorage.getItem('pollingStarted');
+    // let pollingPref = localStorage.getItem('pollingStarted');
     //console.log(pollingPref);
     //console.log(JSON.parse(pollingPref).pollingStarted);
-    this.pollingStarted = pollingPref ? JSON.parse(pollingPref).pollingStarted : false;
+    this.pollingStarted = false;
     this.queuingStarted = false;
+    this.disable = false;
   }
   
   componentDidMount() {
@@ -61,7 +63,7 @@ class Assigner extends Component {
       return;
     }
     console.log('Fetching assign count');
-    this.props.dispatch(fetchAssignmentCount());
+    this.props.dispatch(fetchAssignmentCount(this.state.value));
     setTimeout(() => this.startCheckingAssignmentCount(), 60000);
   }
 
@@ -70,7 +72,7 @@ class Assigner extends Component {
       return;
     }
     console.log('Fetching Submissions');
-    this.props.dispatch(fetchSubmission());
+    this.props.dispatch(fetchSubmission(this.state.value));
     setTimeout(() => this.startSubmissionPolling(), 60000);
   }
 
@@ -80,14 +82,14 @@ class Assigner extends Component {
     }
     console.log("Starting to poll!");
     console.log(submissionId);
-    this.props.dispatch(fetchPositions(submissionId));
+    this.props.dispatch(fetchPositions(this.state.value,submissionId));
     setTimeout(() => this.startPollingPositions(submissionId), 120000);
   }
 
   startRefreshSubmission = (submission) => {
     console.log("Starting Refresh!");
     if (submission.status != 'fulfilled') {
-      this.props.dispatch(refreshSubmission(submission.id));
+      this.props.dispatch(refreshSubmission(this.state.value,submission.id));
     }
   }
 
@@ -98,8 +100,8 @@ class Assigner extends Component {
       this.queuingStarted = true;
       this.pollingStarted = true;
 
-      localStorage.setItem('pollingStarted', JSON.stringify({ pollingStarted: true }));
-      localStorage.setItem('selectedProjects', JSON.stringify(nextProps.currentSubmission[0].submission_request_projects));
+      // localStorage.setItem('pollingStarted', JSON.stringify({ pollingStarted: true }));
+      // localStorage.setItem('selectedProjects', JSON.stringify(nextProps.currentSubmission[0].submission_request_projects));
       // Start checking for assignment count
       this.startCheckingAssignmentCount();
       
@@ -169,18 +171,18 @@ class Assigner extends Component {
 
   handlePostSubmissions = (selectedProjects) => {
     this.pollingStarted = true;
-    localStorage.setItem('pollingStarted', JSON.stringify({ pollingStarted: true }));
-    localStorage.setItem('selectedProjects', JSON.stringify(selectedProjects));
+    // localStorage.setItem('pollingStarted', JSON.stringify({ pollingStarted: true }));
+    // localStorage.setItem('selectedProjects', JSON.stringify(selectedProjects));
     // Start checking for assignment count
-    this.startCheckingAssignmentCount();
-    if (this.props.assignCount < 2) {
+    // this.startCheckingAssignmentCount();
+    // if (this.props.assignCount < 2) {
       // Start a submission only when assign count < 2
       this.props.dispatch(postSubmissions({
           cuid: this.state.value,
           projects: selectedProjects.map(value => {
-            return {project_id: value.project_id, language: 'en-us'};
+            return { project_id: value.project_id, language: 'en-us'};
       })}));
-    }
+    // }
   }
 
   handleCancelSubmission = (submission) => {
@@ -189,16 +191,17 @@ class Assigner extends Component {
     localStorage.removeItem('selectedProjects');
     this.queuingStarted = false;
     submission.map(value => {
-      this.props.dispatch(cancelSubmission(value.id));
+      this.props.dispatch(cancelSubmission(this.state.value,value.id));
     }, this);
   }
 
   handleProjectAssigned = (projectId) => {
     // send email to user with the project projectId
-    this.props.dispatch(notifyAssignedProject(projectId));
+    this.props.dispatch(notifyAssignedProject(projectId,this.state.value));
   }
 
   handleGetProjects = () => {
+    this.disable = true;
     this.props.dispatch(fetchProjects(this.state.value));
   }
 
@@ -246,9 +249,9 @@ class Assigner extends Component {
             showExpandableButton={true}
           />
 
-          <div style={this.styles.wrapper} >
+          <div style={this.styles.wrapper}>
             <SelectField
-              floatingLabelText="Frequency"
+              floatingLabelText="Accounts"
               value={this.state.value}
               onChange={this.handleChange}
               disabled={this.pollingStarted}
@@ -258,9 +261,9 @@ class Assigner extends Component {
           </div>
 
           <CardActions>
-            <RaisedButton primary={true} label="FetchProjects"
+            <RaisedButton primary={true} label="Fetch Projects"
               onClick={() => this.handleGetProjects()}
-              disabled={this.state.value == null } style={this.styles.startButton} />
+              disabled={this.state.value == null || this.pollingStarted || this.disable } style={this.styles.startButton} />
           </CardActions>
         </Card>
         <Card expanded={true}>

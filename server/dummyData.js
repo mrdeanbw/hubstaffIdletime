@@ -44,8 +44,8 @@ export default function () {
       }
     });
 
-    const account1 = new Account({email: 'ralphwantek@gmail.com', password: '03xqlsRP61mcNqm',threads:8 , cuid: cuid()});
-    const account3 = new Account({email: 'ziahamza.ust@gmail.com', password: 'Test123',threads:8, cuid: cuid()});
+    const account1 = new Account({email: 'ralphwantek@gmail.com', password: 'qy3QxateOkC3eDp',threads:8 , cuid: cuid()});
+    const account3 = new Account({email: 'ziahamza.ust@gmail.com', password: 'jIdJuyticRTUOmt',threads:8, cuid: cuid()});
     const account5 = new Account({email: 'kennethau82@gmail.com', password: 'UdacityForever',threads:8, cuid: cuid()});
     const account7 = new Account({email: 'madeius@icloud.com', password: '123456789',threads:8, cuid: cuid()});
     const account8 = new Account({email: 'xmetalced@gmail.com', password: 'krankbuzz2016',threads:8, cuid: cuid()});
@@ -54,11 +54,13 @@ export default function () {
     const account11 = new Account({email: 'cfcdavidchan@gmail.com', password: '25570743',threads:8, cuid: cuid()});
     const account12 = new Account({email: 'paterne.tchoussi@gmail.com', password: '123456789',threads:8, cuid: cuid()});
     const account13 = new Account({email: 'baris.k.005@gmail.com', password: 'CityU2011',threads:8, cuid: cuid()});
+    const account14 = new Account({email: 'natoueolivia@yahoo.fr', password: 'o123456789',threads:8, cuid: cuid()});
+    const account15 = new Account({email: 'rodrigo_bittarr@hotmail.com', password: 'secret',threads:8, cuid: cuid()});
 
      Account.create([account1, account3,
                     account5, account7, account8,
                     account9, account10, account11, account12,
-                    account13], (error) => {
+                    account13, account14, account15], (error) => {
       if (!error) {
         console.log('Created Initial Accounts....');
       }

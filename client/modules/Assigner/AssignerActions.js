@@ -20,7 +20,7 @@ export function addProjects(projects) {
 
 export function fetchProjects(accountId) {
   return (dispatch) => {
-    return callApi('projects/' + accountId).then(res => {
+    return callApi(`projects/list/${accountId}`).then(res => {
       console.log(res.projects);
       dispatch(addProjects(res.projects));
     });
@@ -103,7 +103,7 @@ export function notifyAssignedProject(projectId,cuid) {
 
 export function fetchSubmission(cuid) {
   return (dispatch) => {
-    return callApi('projects/submission').then(res => {
+    return callApi(`projects/submission/${cuid}`).then(res => {
       dispatch(updateSubmission(res.submission));
     });
   };
@@ -123,9 +123,9 @@ export function clearPositions() {
   };
 }
 
-export function fetchPositions(cuid,submissionId) {
+export function fetchPositions(cuid, submissionId) {
   return (dispatch) => {
-    return callApi('projects/positions/' + submissionId, 'get').then(res => {
+    return callApi(`projects/positions/${submissionId}/${cuid}`, 'get').then(res => {
       dispatch(updatePositions(res.submissionId, res.positions));
     });
   };
@@ -133,7 +133,7 @@ export function fetchPositions(cuid,submissionId) {
 
 export function fetchAssignmentCount(cuid) {
   return (dispatch) => {
-    return callApi('projects/assigncount', 'get').then(res => {
+    return callApi(`projects/assigncount/${cuid}`, 'get').then(res => {
       dispatch(updateAssignCount(res.assignCount));
     });
   };

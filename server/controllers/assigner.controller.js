@@ -10,6 +10,7 @@ import Account from '../models/account';
 
 export function getProjects(req, res) {
   // Get the udacity account token
+  console.log(req.params.cuid);
   Account.findOne({ cuid: req.params.cuid }).exec((err, account) => {
     if (err) {
       res.status(500).send(err);
@@ -23,12 +24,15 @@ export function getProjects(req, res) {
       //console.log(token);
       request(projectsUrl, {'Authorization' : token}).then(response => {
         // TODO: handle multiple accounts, currently return projects of first account only.
-        response.forEach((project) => project.cuid = account.cuid );
-        console.log("response :"+response);
+        console.log('Projects...');
+        console.log(response);
         res.status(200).json({
           success: true,
           projects: response.error || response.FetchError || response.name == 'FetchError'
-                        ? [] : response
+                        ? [] : response.map((project) =>  {
+                          project.cuid = account.cuid;
+                          return project;
+                      })
         });
       });
     });
@@ -108,7 +112,7 @@ export function getPositions(req, res) {
       console.log(token);
       request(submitUrl + "/" + req.params.submissionId + "/waits.json", {'Authorization' : token}).then(response => {
         console.log('Positions');
-        console.log(response);
+        //console.log(response);
         response.forEach((project) => project.cuid = account.cuid );
         res.status(200).json({
           success: true,
@@ -136,11 +140,14 @@ export function getSubmission(req, res) {
       request(listSubmissionsUrl, {'Authorization' : token}).then(response => {
         // TODO: handle multiple accounts, currently return projects of first account only.
         console.log("Submissions");
-        console.log(response);
+        //console.log(response);
         res.status(200).json({
           success: true,
           submission: response.error || response.FetchError || response.name == 'FetchError'
-                        ? [] : response.map(v => v.cuid = account.cuid )
+                        ? [] : response.map(v => {
+                          v.cuid = account.cuid;
+                          return v;
+                        })
         });
       });
     });

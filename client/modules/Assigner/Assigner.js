@@ -51,7 +51,6 @@ class Assigner extends Component {
     //console.log(JSON.parse(pollingPref).pollingStarted);
     this.pollingStarted = false;
     this.queuingStarted = false;
-    this.disable = false;
   }
   
   componentDidMount() {
@@ -82,7 +81,7 @@ class Assigner extends Component {
     }
     console.log("Starting to poll!");
     console.log(submissionId);
-    this.props.dispatch(fetchPositions(this.state.value,submissionId));
+    this.props.dispatch(fetchPositions(this.state.value, submissionId));
     setTimeout(() => this.startPollingPositions(submissionId), 120000);
   }
 
@@ -175,14 +174,14 @@ class Assigner extends Component {
     // localStorage.setItem('selectedProjects', JSON.stringify(selectedProjects));
     // Start checking for assignment count
     // this.startCheckingAssignmentCount();
-    // if (this.props.assignCount < 2) {
+    if (this.props.assignCount < 2) {
       // Start a submission only when assign count < 2
       this.props.dispatch(postSubmissions({
           cuid: this.state.value,
           projects: selectedProjects.map(value => {
             return { project_id: value.project_id, language: 'en-us'};
       })}));
-    // }
+    }
   }
 
   handleCancelSubmission = (submission) => {
@@ -201,8 +200,10 @@ class Assigner extends Component {
   }
 
   handleGetProjects = () => {
-    this.disable = true;
+    console.log(this.state.value);
+    this.props.dispatch(fetchAssignmentCount(this.state.value));
     this.props.dispatch(fetchProjects(this.state.value));
+    this.props.dispatch(fetchSubmission(this.state.value));
   }
 
   renderChip(data) {
@@ -263,7 +264,7 @@ class Assigner extends Component {
           <CardActions>
             <RaisedButton primary={true} label="Fetch Projects"
               onClick={() => this.handleGetProjects()}
-              disabled={this.state.value == null || this.pollingStarted || this.disable } style={this.styles.startButton} />
+              disabled={this.state.value == null || this.pollingStarted } style={this.styles.startButton} />
           </CardActions>
         </Card>
         <Card expanded={true}>
@@ -314,8 +315,6 @@ class Assigner extends Component {
     );
   }
 }
-
-Assigner.need = [() => { return fetchProjects(); }];
 
 const mapStateToProps = (state) => {
   return {

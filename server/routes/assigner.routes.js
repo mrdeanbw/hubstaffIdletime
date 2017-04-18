@@ -4,16 +4,16 @@ import * as AssignerController from '../controllers/assigner.controller';
 const router = new Router();
 
 // Get all Accounts
-router.route('/projects/:cuid').get(AssignerController.getProjects);
+router.route('/projects/list/:cuid').get(AssignerController.getProjects);
 
 // Post submissions to projects
 router.route('/projects').post(AssignerController.postProjects);
 
 // Get submission position in wait list
-router.route('/projects/positions/:submissionId').get(AssignerController.getPositions);
+router.route('/projects/positions/:submissionId/:cuid').get(AssignerController.getPositions);
 
 // Get submission
-router.route('/projects/submission').get(AssignerController.getSubmission);
+router.route('/projects/submission/:cuid').get(AssignerController.getSubmission);
 
 // Cancel submission 
 router.route('/projects/cancel/:submissionId').get(AssignerController.cancel);
@@ -25,6 +25,6 @@ router.route('/projects/notify/:projectId').get(AssignerController.notify);
 router.route('/projects/refresh/:submissionId').get(AssignerController.refresh);
 
 // Get assignment Accounts
-router.route('/projects/assigncount').get(AssignerController.getAssignCount);
+router.route('/projects/assigncount/:cuid').get(AssignerController.getAssignCount);
 
 export default router;

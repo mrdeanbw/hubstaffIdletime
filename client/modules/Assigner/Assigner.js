@@ -88,7 +88,7 @@ class Assigner extends Component {
   startRefreshSubmission = (submission) => {
     console.log("Starting Refresh!");
     if (submission.status != 'fulfilled') {
-      this.props.dispatch(refreshSubmission(this.state.value,submission.id));
+      this.props.dispatch(refreshSubmission(this.state.value, submission.id));
     }
   }
 
@@ -196,7 +196,7 @@ class Assigner extends Component {
 
   handleProjectAssigned = (projectId) => {
     // send email to user with the project projectId
-    this.props.dispatch(notifyAssignedProject(projectId,this.state.value));
+    this.props.dispatch(notifyAssignedProject(projectId, this.state.value));
   }
 
   handleGetProjects = () => {
@@ -221,7 +221,7 @@ class Assigner extends Component {
 
   renderAccount(account) {
     return (
-      <MenuItem value={account.cuid} primaryText={account.email} />
+      <MenuItem key={account.cuid} value={account.cuid} primaryText={account.email} />
     );
   }
 

@@ -16,13 +16,13 @@ router.route('/projects/positions/:submissionId/:cuid').get(AssignerController.g
 router.route('/projects/submission/:cuid').get(AssignerController.getSubmission);
 
 // Cancel submission 
-router.route('/projects/cancel/:submissionId').get(AssignerController.cancel);
+router.route('/projects/cancel/:submissionId/:cuid').get(AssignerController.cancel);
 
 // Notify user of assigned project 
-router.route('/projects/notify/:projectId').get(AssignerController.notify);
+router.route('/projects/notify/:projectId/:cuid').get(AssignerController.notify);
 
 // Refresh submission 
-router.route('/projects/refresh/:submissionId').get(AssignerController.refresh);
+router.route('/projects/refresh/:submissionId/:cuid').get(AssignerController.refresh);
 
 // Get assignment Accounts
 router.route('/projects/assigncount/:cuid').get(AssignerController.getAssignCount);

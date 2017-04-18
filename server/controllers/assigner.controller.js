@@ -2,7 +2,7 @@ import Assigner from '../models/assigner';
 import request from '../util/request';
 import { projectsUrl, submitUrl, listSubmissionsUrl, assignCountUrl } from '../util/udacityHelpers';
 import { getAuthToken } from '../util/request';
-import {sendMail} from '../util/mailer';
+import sendMail from '../util/mailer';
 const async = require("async");
 const numCPUs = require('os').cpus().length;
 import Account from '../models/account';

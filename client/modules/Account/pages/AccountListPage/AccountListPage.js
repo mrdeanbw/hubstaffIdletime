@@ -23,8 +23,8 @@ class AccountListPage extends Component {
     }
   };
 
-  handleAddAccount = (email, password) => {
-    this.props.dispatch(addAccountRequest({ email, password }));
+  handleAddAccount = (email, password,threads) => {
+    this.props.dispatch(addAccountRequest({ email, password,threads}));
   };
 
   render() {

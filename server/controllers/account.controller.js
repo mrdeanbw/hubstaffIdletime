@@ -36,6 +36,7 @@ export function addAccount(req, res) {
   newAccount.email = sanitizeHtml(newAccount.email);
   newAccount.password = sanitizeHtml(newAccount.password);
   newAccount.cuid = cuid();
+  newAccount.threads = sanitizeHtml(newAccount.threads);
   newAccount.save((err, saved) => {
     if (err) {
       res.status(500).send(err);

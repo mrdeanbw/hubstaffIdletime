@@ -5,6 +5,7 @@ export const ADD_ACCOUNT = 'ADD_ACCOUNT';
 export const ADD_ACCOUNTS = 'ADD_ACCOUNTS';
 export const DELETE_ACCOUNT = 'DELETE_ACCOUNT';
 export const TOGGLE_ACCOUNT = 'TOGGLE_ACCOUNT';
+export const SET_MESSAGE = 'SET_MESSAGE';
 
 // Export Actions
 export function addAccount(account) {
@@ -68,10 +69,15 @@ export function associateUsersRequest(account) {
         password: account.password,
         threads: account.threads,
       },
-    });
+    }).then(res => dispatch(setSuccessMessage("Account details updated")));
   };
 }
-
+export function setSuccessMessage(message) {
+  return {
+    type: SET_MESSAGE,
+    message,
+  };
+}
 export function toggleAccount(cuid) {
   return {
     type: TOGGLE_ACCOUNT,

@@ -9,6 +9,7 @@ export const UPDATE_POSITIONS = 'UPDATE_POSITIONS';
 export const CLEAR_POSITIONS = 'CLEAR_POSITIONS';
 export const SET_ERROR = 'SET_ERROR';
 export const UPDATE_ASSIGNCOUNT = 'UPDATE_ASSIGNCOUNT';
+export const CLEAR_SUBMISSIONS = 'CLEAR_SUBMISSIONS';
 
 // Export Actions
 export function addProjects(projects) {
@@ -79,7 +80,7 @@ export function cancelSubmission(cuid, submissionId) {
   return (dispatch) => {
     return callApi(`projects/cancel/${submissionId}/${cuid}`, 'get').then(res => {
       if (res.success) {
-        dispatch(fetchSubmission(cuid));
+        dispatch(clearSubmissions());
         dispatch(clearPositions());
       }
       else {
@@ -122,7 +123,11 @@ export function clearPositions() {
     type: CLEAR_POSITIONS,
   };
 }
-
+export function clearSubmissions() {
+  return {
+    type: CLEAR_SUBMISSIONS,
+  };
+}
 export function fetchPositions(cuid, submissionId) {
   return (dispatch) => {
     return callApi(`projects/positions/${submissionId}/${cuid}`, 'get').then(res => {

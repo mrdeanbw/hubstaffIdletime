@@ -1,5 +1,5 @@
 // Import Actions
-import { ADD_PROJECTS, TOGGLE_PROJECT, SELECT_PROJECT, UPDATE_SUBMISSION, UPDATE_POSITIONS, SET_ERROR, CLEAR_POSITIONS, UPDATE_ASSIGNCOUNT } from './AssignerActions';
+import { ADD_PROJECTS, TOGGLE_PROJECT, SELECT_PROJECT, UPDATE_SUBMISSION, UPDATE_POSITIONS, SET_ERROR, CLEAR_POSITIONS, UPDATE_ASSIGNCOUNT, CLEAR_SUBMISSIONS} from './AssignerActions';
 import findIndex from 'lodash/findIndex';
 import find from 'lodash/find';
 
@@ -84,6 +84,11 @@ const AssignerReducer = (state = initialState, action) => {
       return {
         ...state,
         positions: []
+      };
+      case CLEAR_SUBMISSIONS :
+      return {
+        ...state,
+        submission: []
       };
     case UPDATE_ASSIGNCOUNT :
      return {

@@ -186,8 +186,6 @@ class Assigner extends Component {
 
   handleCancelSubmission = (submission) => {
     this.pollingStarted = false;
-    localStorage.removeItem('pollingStarted');
-    localStorage.removeItem('selectedProjects');
     this.queuingStarted = false;
     submission.map(value => {
       this.props.dispatch(cancelSubmission(this.state.value,value.id));

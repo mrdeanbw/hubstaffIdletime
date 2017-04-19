@@ -12,7 +12,7 @@ export function getProjects(req, res) {
   // Get the udacity account token
   console.log(req.params.cuid);
   Account.findOne({ cuid: req.params.cuid }).exec((err, account) => {
-    if (err) {
+    if (err || !account) {
       res.status(500).send(err);
     }
 
@@ -45,7 +45,7 @@ export function postProjects(req, res) {
   Account.findOne({ cuid: req.body.cuid }).exec((err, account) => {
       console.log(req.body.cuid);
 
-    if (err) {
+    if (err || !account) {
       res.status(500).send(err);
     }
 
@@ -100,7 +100,7 @@ export function postProjects(req, res) {
 export function getPositions(req, res) {
   // Get the udacity account token
   Account.findOne({ cuid: req.params.cuid }).exec((err, account) => {
-    if (err) {
+    if (err || !account) {
       res.status(500).send(err);
     }
 
@@ -127,7 +127,7 @@ export function getPositions(req, res) {
 export function getSubmission(req, res) {
   // Get the udacity account token
   Account.findOne({ cuid: req.params.cuid }).exec((err, account) => {
-    if (err) {
+    if (err || !account) {
       res.status(500).send(err);
     }
 
@@ -157,7 +157,7 @@ export function getSubmission(req, res) {
 export function cancel(req, res) {
   // Get the udacity account token
   Account.findOne({ cuid: req.params.cuid }).exec((err, account) => {
-    if (err) {
+    if (err || !account) {
       res.status(500).send(err);
     }
 
@@ -179,7 +179,7 @@ export function cancel(req, res) {
 
 export function notify(req, res) {
   Account.findOne({ cuid: req.params.cuid }).populate('users').exec((err, account) => {
-    if (err) {
+    if (err || !account) {
       res.status(500).send(err);
     }
 
@@ -205,7 +205,7 @@ export function notify(req, res) {
 export function refresh(req, res) {
   // Get the udacity account token
  Account.findOne({ cuid: req.params.cuid }).exec((err, account) => {
-    if (err) {
+    if (err || !account) {
       res.status(500).send(err);
     }
 
@@ -230,7 +230,7 @@ export function refresh(req, res) {
 export function getAssignCount(req, res) {
   // Get the udacity account token
   Account.findOne({ cuid: req.params.cuid }).exec((err, account) => {
-    if (err) {
+    if (err || !account) {
       res.status(500).send(err);
     }
 

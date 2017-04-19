@@ -19,7 +19,9 @@ const accountSchema = new Schema({
 accountSchema.pre('save', function saveHook(next) {
   const account = this;
 
-  account.cuid = cuid();
+  if (account.isNew) {
+    account.cuid = cuid();
+  }
   account.users.forEach(function (user) {
     if (typeof user.accounts !== 'undefined') {
       user.accounts.push(account._id);

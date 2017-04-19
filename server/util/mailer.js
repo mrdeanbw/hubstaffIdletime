@@ -25,6 +25,7 @@ export default function sendMail(options, callback) {
     transporter.sendMail(options, (error, info) => {
         if (error) {
             console.log(error);
+            callback(error, null);
         }
         console.log('Message %s sent: %s', info.messageId, info.response);
         callback(error, info);

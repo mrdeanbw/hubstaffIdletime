@@ -202,6 +202,7 @@ class Assigner extends Component {
     this.props.dispatch(fetchAssignmentCount(this.state.value));
     this.props.dispatch(fetchProjects(this.state.value));
     this.props.dispatch(fetchSubmission(this.state.value));
+    this.props.dispatch(clearPositions());
   }
 
   renderChip(data) {
@@ -253,7 +254,7 @@ class Assigner extends Component {
               floatingLabelText="Accounts"
               value={this.state.value}
               onChange={this.handleChange}
-              disabled={this.pollingStarted}
+              disabled={this.props.accounts.length == 0}
             >
               {this.props.accounts.map(this.renderAccount, this)}
             </SelectField>
@@ -262,7 +263,7 @@ class Assigner extends Component {
           <CardActions>
             <RaisedButton primary={true} label="Fetch Projects"
               onClick={() => this.handleGetProjects()}
-              disabled={this.state.value == null || this.pollingStarted } style={this.styles.startButton} />
+              disabled={this.state.value == null} style={this.styles.startButton} />
           </CardActions>
         </Card>
         <Card expanded={true}>
@@ -337,7 +338,6 @@ Assigner.propTypes = {
   currentSubmission: PropTypes.array.isRequired,
   assignCount: PropTypes.number.isRequired,
   error: PropTypes.string,
-  handleProjectAssigned: PropTypes.func.isRequired,
   accounts: PropTypes.array.isRequired,
 };
 

@@ -79,7 +79,7 @@ export function cancelSubmission(cuid, submissionId) {
   return (dispatch) => {
     return callApi(`projects/cancel/${submissionId}/${cuid}`, 'get').then(res => {
       if (res.success) {
-        dispatch(fetchSubmission());
+        dispatch(fetchSubmission(cuid));
         dispatch(clearPositions());
       }
       else {
@@ -144,7 +144,7 @@ export function refreshSubmission(cuid, submissionId) {
     return callApi(`projects/refresh/${submissionId}/${cuid}`, 'get').then(res => {
       if(res.success) {
         //dispatch(updateSubmission(res.submission));
-        dispatch(fetchSubmission());
+        dispatch(fetchSubmission(cuid));
       }
     });
   };

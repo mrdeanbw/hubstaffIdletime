@@ -27,7 +27,7 @@ class  QueueListItem extends React.Component {
 
   componentWillReceiveProps(nextProps) {
     // Notify user of a new project
-    if (nextProps.queue.position.indexOf(1) != -1) {
+    if (findIndex(nextProps.queue.position, ['position', 1]) != -1) {
       this.handleProjectAssigned(this.props.queue.project_id);
     }
   }

@@ -8,7 +8,7 @@ import QueueList from './components/QueueList';
 import Dialog from 'material-ui/Dialog';
 import FlatButton from 'material-ui/FlatButton';
 import { Toolbar, ToolbarGroup, ToolbarSeparator, ToolbarTitle } from 'material-ui/Toolbar';
-import { fetchAccounts, toggleAccount } from './../Account/AccountActions';
+import { fetchAccounts, toggleAccount, pollingAccountsRequest } from './../Account/AccountActions';
 import { getAccounts } from '../../modules/Account/AccountReducer';
 import SelectField from 'material-ui/SelectField';
 import MenuItem from 'material-ui/MenuItem';
@@ -23,7 +23,8 @@ import { fetchProjects, toggleProject, selectProject, postSubmissions, fetchSubm
 import { getProjects, getPositions, getSelectedProjects, getSubmission, getError, getAssignCount } from './AssignerReducer';
 
 class Assigner extends Component {
-  
+
+
   constructor(props) {
     super(props);
     this.state = {
@@ -34,25 +35,27 @@ class Assigner extends Component {
         margin: 4,
       },
       selectedchip: {
-        margin:4,
-        backgroundColor:'#03A9F4',
+        margin: 4,
+        backgroundColor: '#03A9F4',
       },
       wrapper: {
         display: 'flex',
         flexWrap: 'wrap',
-        margin:  12,
+        margin: 12,
       },
       startButton: {
         margin: 12
       }
     };
-    // let pollingPref = localStorage.getItem('pollingStarted');
     //console.log(pollingPref);
     //console.log(JSON.parse(pollingPref).pollingStarted);
     this.pollingStarted = false;
     this.queuingStarted = false;
+    this.restartingTimer = false;
+    this.time = false;
+    this.timer = false;
   }
-  
+
   componentDidMount() {
     this.props.dispatch(fetchAccounts());
   }
@@ -72,7 +75,7 @@ class Assigner extends Component {
     }
     console.log('Fetching Submissions');
     this.props.dispatch(fetchSubmission(this.state.value));
-    setTimeout(() => this.startSubmissionPolling(), 60000);
+    this.timer = setTimeout(() => this.startSubmissionPolling(), 60000);
   }
 
   startPollingPositions = (submissionId) => {
@@ -82,7 +85,7 @@ class Assigner extends Component {
     console.log("Starting to poll!");
     console.log(submissionId);
     this.props.dispatch(fetchPositions(this.state.value, submissionId));
-    setTimeout(() => this.startPollingPositions(submissionId), 120000);
+    this.time = setTimeout(() => this.startPollingPositions(submissionId), 120000);
   }
 
   startRefreshSubmission = (submission) => {
@@ -92,20 +95,19 @@ class Assigner extends Component {
     }
   }
 
+
   componentWillReceiveProps(nextProps) {
 
     // Fetch positions if we have a current submission
-    if (!this.queuingStarted && nextProps.currentSubmission && nextProps.currentSubmission.length > 0) {
+    if ((!this.queuingStarted || this.restartingTimer) && nextProps.currentSubmission && nextProps.currentSubmission.length > 0) {
       this.queuingStarted = true;
-      this.pollingStarted = true;
-
-      // localStorage.setItem('pollingStarted', JSON.stringify({ pollingStarted: true }));
-      // localStorage.setItem('selectedProjects', JSON.stringify(nextProps.currentSubmission[0].submission_request_projects));
+      this.restartingTimer = false;
       // Start checking for assignment count
       this.startCheckingAssignmentCount();
-      
-      // Select the projects whose submissions are already in progress.
-      nextProps.currentSubmission[0].submission_request_projects.map(value => {
+
+      let accountDetail = (this.props.accounts.filter(account => account.cuid === this.state.value)[0]);
+      var projectsToSelect = accountDetail.selectedProjects;
+      projectsToSelect.forEach(function (value) {
         this.props.dispatch(selectProject(value.project_id));
       }, this);
 
@@ -123,22 +125,14 @@ class Assigner extends Component {
       return;
     }
 
-    if (nextProps.assignCount >=2) {
-        // Account is full, need to wait, so start a assignment count check thread every 2 minutes
-        if (this.props.assignCount != nextProps.assignCount) {
-          this.props.dispatch(setError("Account is full now! Waiting for submissions to be less than 2."));
-        }
+    if (nextProps.assignCount >= 2) {
+      // Account is full, need to wait, so start a assignment count check thread every 2 minutes
+      if (this.props.assignCount != nextProps.assignCount) {
+        this.props.dispatch(setError("Account is full now! Waiting for submissions to be less than 2."));
+      }
     }
 
-    if (!this.queuingStarted && nextProps.projects && nextProps.projects.length > 0) {
-      // The projects have been fetched and we have not started the queuing yet, select the projects from local localStorage
-      let projectsToSelect = localStorage.getItem('selectedProjects');
-      projectsToSelect = projectsToSelect ? JSON.parse(projectsToSelect) : [];
-      projectsToSelect.map(value => {
-        this.props.dispatch(selectProject(value.project_id));
-      }, this);
-    }
-    
+
     if (this.queuingStarted && nextProps.assignCount < 2 && (!nextProps.currentSubmission || nextProps.currentSubmission.length == 0)) {
       if (this.props.selectedProjects.length > 0) {
         // The assign count has gone below 2, and there are no submissions, start a new submisison.
@@ -151,7 +145,7 @@ class Assigner extends Component {
       let endsAt = new Date(nextProps.currentSubmission[0].closed_at);
       let timeout = endsAt.getTime() - Date.now();
       console.log('Checking Timeout');
-      
+
       if (timeout < 300000) {   // minus 5 minutes
         // Needs refresh
         nextProps.currentSubmission.map(value => {
@@ -169,26 +163,37 @@ class Assigner extends Component {
   }
 
   handlePostSubmissions = (selectedProjects) => {
-    this.pollingStarted = true;
-    // localStorage.setItem('pollingStarted', JSON.stringify({ pollingStarted: true }));
-    // localStorage.setItem('selectedProjects', JSON.stringify(selectedProjects));
-    // Start checking for assignment count
-    // this.startCheckingAssignmentCount();
+    let accountDetail = (this.props.accounts.filter(account => account.cuid === this.state.value)[0])
+    selectedProjects.forEach(function (project) {
+      var selectedProject = { project_id: project.project_id, language: "en-us" };
+      accountDetail.selectedProjects.push(selectedProject);
+    }, this);
+    this.pollingStarted = true
+    if (accountDetail != null)
+      this.props.dispatch(pollingAccountsRequest({ pollingStarted: true, queuingStarted: true, selectedProjects: accountDetail.selectedProjects, cuid: accountDetail.cuid }));
+
+    this.startCheckingAssignmentCount();
     if (this.props.assignCount < 2) {
       // Start a submission only when assign count < 2
       this.props.dispatch(postSubmissions({
-          cuid: this.state.value,
-          projects: selectedProjects.map(value => {
-            return { project_id: value.project_id, language: 'en-us'};
-      })}));
+        cuid: this.state.value,
+        projects: selectedProjects.map(value => {
+          return { project_id: value.project_id, language: 'en-us' };
+        })
+      }));
     }
   }
 
   handleCancelSubmission = (submission) => {
-    this.pollingStarted = false;
+    let accountDetail = (this.props.accounts.filter(account => account.cuid === this.state.value)[0])
+    accountDetail.selectedProjects.length = 0;
+
+    if (accountDetail != null)
+      this.props.dispatch(pollingAccountsRequest({ pollingStarted: false, queuingStarted: false, selectedProjects: accountDetail.selectedProjects, cuid: accountDetail.cuid }));
+
     this.queuingStarted = false;
     submission.map(value => {
-      this.props.dispatch(cancelSubmission(this.state.value,value.id));
+      this.props.dispatch(cancelSubmission(this.state.value, value.id));
     }, this);
   }
 
@@ -198,11 +203,29 @@ class Assigner extends Component {
   }
 
   handleGetProjects = () => {
-    console.log(this.state.value);
+    if (this.time) {
+      clearTimeout(this.time);
+      this.time = false;
+    }
+    if (this.timer) {
+      clearTimeout(this.timer);
+      this.timer = false;
+    }
     this.props.dispatch(fetchAssignmentCount(this.state.value));
     this.props.dispatch(fetchProjects(this.state.value));
     this.props.dispatch(fetchSubmission(this.state.value));
     this.props.dispatch(clearPositions());
+    let accountDetail = (this.props.accounts.filter(account => account.cuid === this.state.value)[0]);
+    this.pollingStarted = accountDetail.pollingStarted;
+    this.queuingStarted = accountDetail.queuingStarted;
+    var projectsToSelect = accountDetail.selectedProjects;
+      projectsToSelect.forEach(function (value) {
+        this.props.dispatch(selectProject(value.project_id));
+      }, this);
+
+    if (this.queuingStarted) {
+      this.restartingTimer = true;
+    }
   }
 
   renderChip(data) {
@@ -228,7 +251,7 @@ class Assigner extends Component {
     this.props.dispatch(setError(""));
   };
 
-  handleChange = (event, index, value) => this.setState({value});
+  handleChange = (event, index, value) => this.setState({ value });
 
 
   render() {

@@ -10,6 +10,9 @@ const accountSchema = new Schema({
   password: String,
   threads: {type: Number},  
   cuid: { type: 'String', required: true },
+  pollingStarted:{type: Boolean},
+  selectedProjects:{type: Array },
+  queuingStarted:{type :Boolean},
   users: [{ type: Schema.Types.ObjectId, ref: 'User' }],
 });
 
@@ -22,6 +25,7 @@ accountSchema.pre('save', function saveHook(next) {
   if (account.isNew) {
     account.cuid = cuid();
   }
+
   account.users.forEach(function (user) {
     if (typeof user.accounts !== 'undefined') {
       user.accounts.push(account._id);

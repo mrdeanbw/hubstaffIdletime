@@ -84,6 +84,25 @@ export function deleteAccount(req, res) {
  * @param res
  * @returns void
  */
+
+export function updatePolling(req, res){
+  Account.findOne({ cuid: req.params.cuid }).exec((err, account) => {
+    if (err) {
+      res.status(500).send(err);
+    }
+
+   account.pollingStarted = req.body.account.pollingStarted;
+   account.selectedProjects = req.body.account.selectedProjects;
+   account.queuingStarted = req.body.account.selectedProjects;
+    account.save((err, saved) => {
+      if (err) {
+        res.status(500).send(err);
+      }
+      res.json({ account: saved });
+    });
+  });
+}
+
 export function updateAccount(req, res) {
   Account.findOne({ cuid: req.params.cuid }).exec((err, account) => {
     if (err) {

@@ -21,6 +21,7 @@ export function addAccountRequest(account) {
       account: {
         email: account.email,
         password: account.password,
+        threads:account.threads,
       },
     }).then(res => dispatch(addAccount(res.account)));
   };
@@ -60,10 +61,23 @@ export function deleteAccountRequest(cuid) {
   };
 }
 
+export function pollingAccountsRequest(account){
+  var cuid = account.cuid;
+  return (dispatch) => {
+    return callApi(`accounts/poll/${cuid}`, 'put', {
+      account: {
+        pollingStarted: account.pollingStarted,
+        selectedProjects: account.selectedProjects,
+        queuingStarted:account.queuingStarted,
+      },
+    });
+  };
+}
+
 export function associateUsersRequest(account) {
   var cuid = account.cuid;
   return (dispatch) => {
-    return callApi(`accounts/${cuid}`, 'put', {
+    return callApi(`accounts/update/${cuid}`, 'put', {
       account: {
         users: account.users,
         password: account.password,

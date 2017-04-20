@@ -45,6 +45,9 @@ module.exports = {
         include: /node_modules/,
         loaders: ['style-loader', 'css-loader'],
       }, {
+        test: /\.scss$/,
+        loaders: [ 'style', 'css', 'sass' ]
+      }, {
         test: /\.jsx*$/,
         exclude: /node_modules/,
         loader: 'babel',
@@ -55,6 +58,11 @@ module.exports = {
         test: /\.json$/,
         loader: 'json-loader',
       },
+      {test: /\.ico$/, exclude: /node_modules/, loader: 'file?name=[name].[ext]'},
+      {test: /\.eot(\?v=\d+.\d+.\d+)?$/, loader: 'file'},
+      {test: /\.woff(2)?(\?v=[0-9]\.[0-9]\.[0-9])?$/, loader: "url?limit=10000&mimetype=application/font-woff"},
+      {test: /\.ttf(\?v=\d+\.\d+\.\d+)?$/, loader: 'url?limit=10000&mimetype=application/octet-stream'},
+      {test: /\.svg(\?v=\d+\.\d+\.\d+)?$/, loader: 'url?limit=10000&mimetype=image/svg+xml'},
     ],
   },
 

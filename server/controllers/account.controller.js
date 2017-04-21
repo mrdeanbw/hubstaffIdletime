@@ -93,7 +93,7 @@ export function updatePolling(req, res){
 
    account.pollingStarted = req.body.account.pollingStarted;
    account.selectedProjects = req.body.account.selectedProjects;
-   account.queuingStarted = req.body.account.selectedProjects;
+   account.queuingStarted = req.body.account.queuingStarted;
     account.save((err, saved) => {
       if (err) {
         res.status(500).send(err);

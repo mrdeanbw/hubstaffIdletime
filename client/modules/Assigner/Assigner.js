@@ -192,6 +192,7 @@ class Assigner extends Component {
       this.props.dispatch(pollingAccountsRequest({ pollingStarted: false, queuingStarted: false, selectedProjects: accountDetail.selectedProjects, cuid: accountDetail.cuid }));
 
     this.queuingStarted = false;
+    this.pollingStarted = false;
     submission.map(value => {
       this.props.dispatch(cancelSubmission(this.state.value, value.id));
     }, this);

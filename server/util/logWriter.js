@@ -3,7 +3,7 @@ var dateFormat = require('dateformat');
 var day=dateFormat(new Date(), "yyyy-mm-dd h:MM:ss");
 
 export default function addLog(action,result,hrend) {
-  var res = JSON.parse(result);
+  var res = JSON.stringify(result);
 
  fs.appendFile('./action.log', '\n\n' +day+' '+ action +' '+ res +
  	', Execution time: '+hrend[0]+'s '+hrend[1]/1000000+'ms ' , function(err){

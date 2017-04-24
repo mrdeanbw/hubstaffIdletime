@@ -6,9 +6,14 @@ import sendMail from '../util/mailer';
 const async = require("async");
 const numCPUs = require('os').cpus().length;
 import Account from '../models/account';
+import logWriter from '../util/logWriter';
 
 
 export function getProjects(req, res) {
+
+  // start timer
+  var hrstart = process.hrtime();
+
   // Get the udacity account token
   console.log(req.params.cuid);
   Account.findOne({ cuid: req.params.cuid }).exec((err, account) => {
@@ -26,6 +31,12 @@ export function getProjects(req, res) {
         // TODO: handle multiple accounts, currently return projects of first account only.
         console.log('Projects...');
         console.log(response);
+
+        //log start
+        var hrend = process.hrtime(hrstart);
+        logWriter('getProjects: ',response,hrend);
+        //log end 
+        
         res.status(200).json({
           success: true,
           projects: response.error || response.FetchError || response.name == 'FetchError'
@@ -40,6 +51,10 @@ export function getProjects(req, res) {
 }
 
 export function postProjects(req, res) {
+
+  // start timer
+  var hrstart = process.hrtime();
+
   // TODO: check to see if we have an projects.
   // Get the udacity account token
   Account.findOne({ cuid: req.body.cuid }).exec((err, account) => {
@@ -86,6 +101,12 @@ export function postProjects(req, res) {
             returnResults.push(value);
           }
         });
+
+        //log start
+        var hrend = process.hrtime(hrstart);
+        logWriter('postProjects: ',returnResults,hrend);
+        //log end
+
         let hasError = returnResults.length == 0;
         res.status(200).json({
           success: hasError ? false : true,
@@ -98,6 +119,10 @@ export function postProjects(req, res) {
 }
 
 export function getPositions(req, res) {
+
+  // start timer
+  var hrstart = process.hrtime();
+
   // Get the udacity account token
   Account.findOne({ cuid: req.params.cuid }).exec((err, account) => {
     if (err || account == null) {
@@ -112,7 +137,11 @@ export function getPositions(req, res) {
       console.log(token);
       request(submitUrl + "/" + req.params.submissionId + "/waits.json", {'Authorization' : token}).then(response => {
         console.log('Positions');
-        //console.log(response);
+        console.log(response);
+        //log start
+        var hrend = process.hrtime(hrstart);
+        logWriter('getPositions: ',response,hrend);
+        //log end
         response.forEach((project) => project.cuid = account.cuid );
         res.status(200).json({
           success: true,
@@ -125,6 +154,10 @@ export function getPositions(req, res) {
 }
 
 export function getSubmission(req, res) {
+
+  // start timer
+  var hrstart = process.hrtime();
+
   // Get the udacity account token
   Account.findOne({ cuid: req.params.cuid }).exec((err, account) => {
     if (err || account == null) {
@@ -140,7 +173,11 @@ export function getSubmission(req, res) {
       request(listSubmissionsUrl, {'Authorization' : token}).then(response => {
         // TODO: handle multiple accounts, currently return projects of first account only.
         console.log("Submissions");
-        //console.log(response);
+        console.log(response);
+        //log start
+        var hrend = process.hrtime(hrstart);
+        logWriter('getSubmission: ',response,hrend);
+        //log end
         res.status(200).json({
           success: true,
           submission: response.error || response.FetchError || response.name == 'FetchError'
@@ -155,6 +192,10 @@ export function getSubmission(req, res) {
 }
 
 export function cancel(req, res) {
+
+  // start timer
+  var hrstart = process.hrtime();
+
   // Get the udacity account token
   Account.findOne({ cuid: req.params.cuid }).exec((err, account) => {
     if (err || account == null) {
@@ -167,6 +208,10 @@ export function cancel(req, res) {
     }
     getAuthToken(credentials).then(token => {
       console.log('Cancelling project...');
+      //log start
+        var hrend = process.hrtime(hrstart);
+        logWriter('cancel: ',response,hrend);
+        //log end
       request(submitUrl + "/" + req.params.submissionId + ".json", {'Authorization' : token}, 'delete').then(response => {
         //console.log(response);
         res.status(200).json({
@@ -178,6 +223,10 @@ export function cancel(req, res) {
 }
 
 export function notify(req, res) {
+
+  // start timer
+  var hrstart = process.hrtime();
+
   Account.findOne({ cuid: req.params.cuid }).populate('users').exec((err, account) => {
     if (err || account == null) {
       res.status(500).send(err);
@@ -203,6 +252,10 @@ export function notify(req, res) {
 }
 
 export function refresh(req, res) {
+
+  // start timer
+  var hrstart = process.hrtime();
+
   // Get the udacity account token
  Account.findOne({ cuid: req.params.cuid }).exec((err, account) => {
     if (err || account == null) {
@@ -217,6 +270,12 @@ export function refresh(req, res) {
       console.log('Refreshing project...');
       request(submitUrl + "/" + req.params.submissionId + "/refresh.json", {'Authorization' : token}, 'put').then(response => {
         console.log(response);
+
+        //log start
+        var hrend = process.hrtime(hrstart);
+        logWriter('refresh: ',response,hrend);
+        //log end
+
         res.status(200).json({
           success: response.error ? false : true,
           submission: response.error ? {} : response,
@@ -228,6 +287,10 @@ export function refresh(req, res) {
 }
 
 export function getAssignCount(req, res) {
+
+  // start timer
+  var hrstart = process.hrtime();
+
   // Get the udacity account token
   Account.findOne({ cuid: req.params.cuid }).exec((err, account) => {
     if (err || account == null) {
@@ -244,6 +307,12 @@ export function getAssignCount(req, res) {
       request(assignCountUrl, {'Authorization' : token}).then(response => {
         // TODO: handle multiple accounts, currently return projects of first account only.
         console.log(response);
+
+        //log start
+        var hrend = process.hrtime(hrstart);
+        logWriter('getAssignCount: ',response,hrend);
+        //log end
+
         res.status(200).json({
           success: true,
           assignCount: response.assigned_count || 0

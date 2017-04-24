@@ -1,14 +1,3 @@
-import React from 'react';
-import {shallow} from 'enzyme';
-import {expect} from 'chai';
-import SearchBox from './SearchBox';
+import test from 'ava';
 
-describe('<SearchBox />', () => {
-  it('should have a textbox with hintText \'Search\'', () => {
-    const wrapper = shallow(<SearchBox />);
-    const actual = wrapper.find('TextField').prop('hintText');
-    const expected = 'Search...';
-
-    expect(expected).to.equal(actual);
-  });
-});
+test.todo('It will be necessary to think of writing this later');

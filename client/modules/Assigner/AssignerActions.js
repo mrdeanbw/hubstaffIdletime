@@ -105,6 +105,7 @@ export function notifyAssignedProject(projectId, cuid) {
 export function fetchSubmission(cuid) {
   return (dispatch) => {
     return callApi(`projects/submission/${cuid}`).then(res => {
+      console.log(res.data);
       dispatch(updateSubmission(res.submission));
     });
   };

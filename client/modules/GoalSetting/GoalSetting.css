@@ -1,0 +1,52 @@
+
+.panelwithnavtabs.panelheading{
+    padding: 5px 5px 0 5px;
+}
+.panelwithnavtabs.navtabs{
+	border-bottom: none;
+}
+.panelwithnavtabs .nav-justified{
+	margin-bottom: -1px;
+}
+
+/********************************************************************/
+/*** PANEL PRIMARY ***/
+.withnavtabs.panelprimary.navtabs > li > a,
+.withnavtabs.panelprimary.navtabs > li > a:hover,
+.withnavtabs.panelprimary.navtabs > li > a:focus {
+    color: #fff;
+}
+.withnavtabs.panelprimary .navtabs > .open > a,
+.withnavtabs.panelprimary .navtabs > .open > a:hover,
+.withnavtabs.panelprimary .navtabs > .open > a:focus,
+.withnavtabs.panelprimary .navtabs > li > a:hover,
+.withnavtabs.panelprimary .navtabs > li > a:focus {
+	color: #fff;
+	background-color: #3071a9;
+	border-color: transparent;
+}
+
+.withnavs.panelprimary .navtabs > li.active > a,
+.withnavtabs.panelprimary .navtabs > li.active > a:hover,
+.withnavtabs.panelprimary .navtabs > li.active > a:focus {
+	color: #428bca;
+	background-color: #fff;
+	border-color: #428bca;
+	border-bottom-color: transparent;
+}
+.withnavtabs.panelprimary .navtabs > li.dropdown .dropdown-menu {
+    background-color: #428bca;
+    border-color: #3071a9;
+}
+.withnavtabs.panelprimary .navtabs > li.dropdown .dropdown-menu > li > a {
+    color: #fff;   
+}
+.withnavtabs.panelprimary .navtabs > li.dropdown .dropdown-menu > li > a:hover,
+.withnavtabs.panelprimary .navtabs > li.dropdown .dropdown-menu > li > a:focus {
+    background-color: #3071a9;
+}
+.withnavtabs.panelprimary .navtabs > li.dropdown .dropdown-menu > .active > a,
+.withnavtabs.panelprimary .navtabs > li.dropdown .dropdown-menu > .active > a:hover,
+.withnavtabs.panelprimary .navtabs > li.dropdown .dropdown-menu > .active > a:focus {
+    background-color: #4a9fe9;
+}

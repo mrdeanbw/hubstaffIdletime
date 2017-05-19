@@ -15,7 +15,9 @@ const data = {
     { text: 'DashBoard', icon: <Assessment/>, link: '/dashboard' },
     { text: 'Users', icon: <PermIdentity/>, link: '/users' },
     { text: 'Accounts', icon: <AccountBox/>, link: '/accounts' },
-    { text: 'Assigners', icon: <ActionAssignment/>, link: '/assigners' }
+    { text: 'Assigners', icon: <ActionAssignment/>, link: '/assigners' },
+    { text: 'Employees', icon: <AccountBox/>, link: '/employees' },
+    { text: 'GoalSettings', icon: <Assessment/>, link: '/goal_settings' }
   ],
   tablePage: {
     items: [

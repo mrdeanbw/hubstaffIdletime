@@ -41,6 +41,7 @@ import dummyData from './dummyData';
 import serverConfig from './config';
 import authRoutes from './routes/auth.routes';
 import assignerRoutes from './routes/assigner.routes';
+import SubmissionRoutes from './routes/submission.routes';
 
 // Set native promises as mongoose promise
 mongoose.Promise = global.Promise;
@@ -78,6 +79,7 @@ app.use('/api', users);
 app.use('/api', roles);
 app.use('/api', accounts);
 app.use('/api', assignerRoutes);
+app.use('/api', SubmissionRoutes);
 
 
 // Render Initial HTML

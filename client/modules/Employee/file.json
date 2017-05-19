@@ -1,0 +1,36 @@
+[{
+	"properties": "Todays Feedback Points :",
+	"actual": 30,
+	"goal": 25,
+	"goals": 120
+},
+{
+	"properties": "Weekly Feedback Points :",
+	"actual": 140,
+	"goal": 135,
+	"goals": 103
+},
+{
+	"properties": "Monthly Feedback Points :",
+	"actual": 80,
+	"goal": 67,
+	"goals": 90
+},
+{
+	"properties": "Daily Time Worked :",
+	"actual": 45,
+	"goal": 109,
+	"goals": 101
+},
+{
+	"properties": "Weekly Time Worked :",
+	"actual": 160,
+	"goal": 70,
+	"goals": 140
+},
+{
+	"properties": "Monthly Time Worked :",
+	"actual": 40,
+	"goal": 160,
+	"goals": 135
+}]

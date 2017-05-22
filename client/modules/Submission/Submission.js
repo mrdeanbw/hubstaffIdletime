@@ -25,8 +25,8 @@ import styles from './Employee.css';
 
 //Default header definitions for axioss
 //axios.defaults.baseURL = "https://api.hubstaff.com/v1/organizations/36671/members";
-axios.defaults.headers.common['Auth-Token'] = "sfrRjPy7IgIL4C9V2hdUBwKkyxFuJf9h6pVexVlsLL8";
-axios.defaults.headers.common['App-Token'] = "ljMevSy_f4-1TcJAcMNYtw95XX4CsLiASYQFVW51ZpU";
+//axios.defaults.headers.common['Auth-Token'] = "sfrRjPy7IgIL4C9V2hdUBwKkyxFuJf9h6pVexVlsLL8";
+//axios.defaults.headers.common['App-Token'] = "ljMevSy_f4-1TcJAcMNYtw95XX4CsLiASYQFVW51ZpU";
 
 //Time global constants
 const currentdate = new Date();

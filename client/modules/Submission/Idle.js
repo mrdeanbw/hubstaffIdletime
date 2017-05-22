@@ -23,15 +23,15 @@ var jsondata = require("./file.json")
 //Time global constants
 const stopped_time1 = new Date();
 const stopped_time = dateFormat(stopped_time1, "isoDateTime");
-const started_time = new Date().setDate(stopped_time1.getDate()-2);
+const started_time = new Date().setDate(stopped_time1.getDate()-5);
 const started_time1 = dateFormat(started_time, "isoDateTime");
-console.log(started_time1);
+/*console.log(started_time1);*/
 
 
 //Default header definitions for axioss
 //axios.defaults.baseURL = "https://api.hubstaff.com/v1/activities?start_time="+started_time1+"&stop_time="+stopped_time+"&organizations=36671";
-axios.defaults.headers.common['Auth-Token'] = "sfrRjPy7IgIL4C9V2hdUBwKkyxFuJf9h6pVexVlsLL8";
-axios.defaults.headers.common['App-Token'] = "ljMevSy_f4-1TcJAcMNYtw95XX4CsLiASYQFVW51ZpU";
+//axios.defaults.headers.common['Auth-Token'] = "sfrRjPy7IgIL4C9V2hdUBwKkyxFuJf9h6pVexVlsLL8";
+//axios.defaults.headers.common['App-Token'] = "ljMevSy_f4-1TcJAcMNYtw95XX4CsLiASYQFVW51ZpU";
 
 
 class Idle extends Component {
@@ -44,7 +44,7 @@ class Idle extends Component {
 
   componentDidMount(){
     axios 
-    .get("https://api.hubstaff.com/v1/activities?start_time="+started_time1+"&stop_time="+stopped_time+"&organizations=36671")
+    .get("https://api.myjson.com/bins/j3hn9")
     .then((res) => {    
       this.setState({
         data: res.data.activities
@@ -57,10 +57,16 @@ class Idle extends Component {
 
   writeDb(id) {
     axios
-      .delete("https://api.hubstaff.com/v1/activities?start_time="+started_time1+"&stop_time="+stopped_time+"&organizations=36671", 
+      .delete("https://api.myjson.com/bins/j3hn9", 
       {
+        headers: {
+          'Content-Type': 'application/json'
+        },
         params: { id: id }
       })
+      .then((response) => {
+        console.log(response.data)
+        })
       .catch(function (error) {
         console.log(error);
       });
